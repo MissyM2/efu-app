@@ -10,11 +10,11 @@ const term_classSchema = new mongoose.Schema({
 });
 
 term_classSchema.methods.serialize = function() {
-    let termclass;
-       if (typeof this.termclass.serialize === 'function') {
-        termclass = this.termclass.serialize();
+    let term_class;
+       if (typeof this.term_class.serialize === 'function') {
+        term_class = this.term_class.serialize();
     } else {
-        termclass = this.termclass;
+        term_class = this.term_class;
     }
 
     return {
@@ -22,10 +22,9 @@ term_classSchema.methods.serialize = function() {
         term_class_name: this.term_class_name,
         term_class_num: this.term_class_num,
         term_class_desc: this.term_class_desc,
-        term_class_updateDate: this.term_class_updateDate
     };
 };
 
-const Termclass = mongoose.model('termclass', term_classSchema);
+const Termclass = mongoose.model('Termclass', term_classSchema);
 
 module.exports = {Termclass};

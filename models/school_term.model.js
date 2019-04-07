@@ -5,8 +5,7 @@ const mongoose = require('mongoose');
 const school_termSchema = new mongoose.Schema({
     school_term_institution: { type: String, required: true },
     school_term_level: { type: String, required: true },
-    school_term_desc: { type:String },
-    school_term_updateDate: { type: Date, default: Date.now }
+    school_term_desc: { type:String }
 });
 
 school_termSchema.methods.serialize = function() {
@@ -22,7 +21,6 @@ school_termSchema.methods.serialize = function() {
         school_term_institution: this.term_institution,
         school_term_level: this.term_level,
         school_term_desc: this.term_desc,
-        school_term_updateDate: this.updateDate
     };
 };
 

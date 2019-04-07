@@ -8,14 +8,7 @@ const weekSchema = new mongoose.Schema({
 });
 
 weekSchema.methods.serialize = function() {
-    let week;
-    if (typeof this.week.serialize === 'function') {
-        week = this.week.serialize();
-    } else {
-        week = this.week;
-    }
-
-    return {
+  return {
         id: this._id,
         week_num: this.week_num,
         week_enddate: this.week_enddate

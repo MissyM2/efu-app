@@ -19,7 +19,6 @@ class_deliverable_optionSchema.methods.serialize = function() {
         id: this._id,
         class_deliverable_option_type: this.class_deliverable_option_type,
         class_deliverable_option_name: this.class_deliverable_option_name,
-        class_deliverable_option_desc: this.class_deliverable_optin_desc,
         class_deliverable_option_desc: this.class_deliverable_option_desc,
         class_deliverable_option_prephrs: this.class_deliverable_option_prephrs
     };
