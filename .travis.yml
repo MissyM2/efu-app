@@ -1,0 +1,11 @@
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: PaDlsifNx50Xa7wWQerPV09WsU2PVGim4YbRGG4eluh+Eyq6rGiU1/1IS3UDSUvySMn1AoK2nC2YiGp4xY33fM8KXQeRyxYnOYiR94wyclojhFeJEQ18MgLR+WQS5Lm6gh21RdvbXKQMO5zPo5FAp/6vbhuc0BVomQkGMbnGBBmpOYbb1C59iUgx2KAb7HYTGQ0CPLobZBNI5lwBdQtT6v3AcqT8fZD6loB2Nzq53ypPtxn2Ls4+MGzwnjdUuOYq9czjqvUJWiXNCeRCa64idS9wZ6iFVIyMwuWKWJOB6Lp/vmWZ8OZ9wRtoMMTeCegc9rGygPSpnXO0lWyqJ/BNbqOvy2ZPS6ASCfiWOwny1ib5Lh+pYAGx6qdDlX6/zaaaS4VJRjPyxyFzFn5xdjCNaxSVTSK64GOQyoDMsOMiLIWsqX92Umjc0ikB8gyiCzpRbuhcGozYEV4834nWai422FQxc1HjSQHf1++URw7VMz8++EkOfLrzaELoQkSqd/vf+GCsJHumtCJ5fugXuex+X8851tqPXZewNE+8tKqsQEBbQ2PWXWVjPWe3gJ1n66NJyRjSQGI7li4XYchzKymBV7FC9Pz7EH/tjpnQjTHs+TxdLNPXd7vJRxc7S2l3/zvjcZCkS8mCc0dH+cG+t9CHyajaAJAQYid6c+6IYbEmeDw=
+  app: glacial-coast-98881
+  on:
+    repo: MissyM2/efu-server
