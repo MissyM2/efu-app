@@ -2,13 +2,13 @@
 
 const express = require('express');
 
-const { jwtPassportMiddleware } = require('../auth/auth.user');
+//const { jwtPassportMiddleware } = require('../auth/auth.user');
 const {User} = require('./models/user.model');
 
 const userRouter = express.Router();
 
 // add a new user
-userRouter.post('/', jwtPassportMiddleware, (req, res) => {
+userRouter.post('/', (req, res) => {
     const newUser = {
         fname: req.body.user_fname,
         lname: req.body.user_lname,
@@ -51,7 +51,7 @@ userRouter.post('/', jwtPassportMiddleware, (req, res) => {
 
 
 // get all users
-userRouter.get('/', jwtPassportMiddleware, (req, res) => {
+userRouter.get('/', (req, res) => {
     User.find()
         .sort({ user_lname: -1} )
         .then(users => res.status(200).json(users.map(user => user.serialize())
@@ -62,7 +62,7 @@ userRouter.get('/', jwtPassportMiddleware, (req, res) => {
 });
 
 // retrieve one user by user_id
-userRouter.get('/:userid', jwtPassportMiddleware, (req, res) => {
+userRouter.get('/:userid', (req, res) => {
     User.findById(req.params.userid)
         .then(user => res.json(user.serialize()))
         .catch(err => {
@@ -72,7 +72,7 @@ userRouter.get('/:userid', jwtPassportMiddleware, (req, res) => {
 });
 
 // update user by user_type
-userRouter.put('/:loginid', jwtPassportMiddleware, (req, res) => {
+userRouter.put('/:loginid', (req, res) => {
     if (!(req.params.user_loginid_email && req.body.user_loginid_email && req.params.user_loginid_email === req.body.user_loginid_email)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
@@ -97,7 +97,7 @@ userRouter.put('/:loginid', jwtPassportMiddleware, (req, res) => {
 });
 
 //  remove user by id
-userRouter.delete('/:loginid', jwtPassportMiddleware, (req, res) => {
+userRouter.delete('/:loginid', (req, res) => {
     return User.findByIdAndRemove(req.params.user_loginid_email)
         .then(() => {
             console.log('deleting entry...');

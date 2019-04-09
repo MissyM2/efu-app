@@ -2,10 +2,18 @@
 
 const mongoose = require('mongoose');
 
-const deliverable_typeSchema = new mongoose.Schema({
-    deliverable_type_pressure: { type: String, required: true },
-    deliverable_type_def: {type: String, required: true}
+const deliverabletypeSchema = new mongoose.Schema({
+    deliverabletype_pressure: { type: String, required: true },
+    deliverabletype_def: {type: String, required: true}
 });
+
+deliverabletypeSchema.methods.serialize = function() {
+    return {
+        id: this._id,
+        deliverabletype_pressure: this.deliverabletype_pressure,
+        deliverabletype_def: this.deliverabletype_def
+    };
+};
 
 const class_deliverable_optionSchema = new mongoose.Schema({
     class_deliverable_option_type: [deliverable_typeSchema],
@@ -24,6 +32,7 @@ class_deliverable_optionSchema.methods.serialize = function() {
     };
 };
 
+const Deliverabletype = mongoose.model('Deliverabletype', deliverable_typeSchema);
 const Classdeliverableoption = mongoose.model('Classdeliverableoption', class_deliverable_optionSchema);
 
-module.exports = {Classdeliverableoption};
+module.exports = {Deliverabletype, Classdeliverableoption};

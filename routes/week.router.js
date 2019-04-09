@@ -2,27 +2,22 @@
 
 const express = require('express');
 
-const { jwtPassportMiddleware } = require('../auth/auth.strategy');
-const {Week} = require('./models/week.model');
+//const { jwtPassportMiddleware } = require('../auth/auth.strategy');
+const {Week} = require('../models/week.model');
 
 const weekRouter = express.Router();
 
 // add a new week
-weekRouter.post('/', jwtPassportMiddleware, (req, res) => {
-    const reqFields = ['week']
-    for (let i=0; i <reqFields.length; i++) {
-        const field = reqFields[i];
-            if(!(field in req.body)) {
-                const message = `Missing \`${field}\` in request body`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
-    }
+weekRouter.post('/', (req, res) => {
+    const newWeek = {
+        week_num: req.body.week_num,
+        week_enddate: req.body.week_enddate
+    };
+
+    console.log(newWeek);
+
     Week
-        .create({
-            week_num: req.body.week_num,
-            week_enddate: req.body.week_enddate
-        })
+        .create(newWeek)
         .then(week => {
             return res.status(201).json(week.serialize());
         })
@@ -34,7 +29,7 @@ weekRouter.post('/', jwtPassportMiddleware, (req, res) => {
 
 
 // get all weeks
-weekRouter.get('/', jwtPassportMiddleware, (req, res) => {
+weekRouter.get('/', (req, res) => {
     Week.find()
         .sort({ week_num: -1} )
         .then( weeks => {
@@ -47,8 +42,8 @@ weekRouter.get('/', jwtPassportMiddleware, (req, res) => {
 });
 
 // retrieve one week by week_num
-weekRouter.get('/:week_num', jwtPassportMiddleware, (req, res) => {
-    week.findById(req.params.week_num)
+weekRouter.get('/:week_id', (req, res) => {
+    week.findById(req.params.week_id)
         .then(week => {
             return res.json(week.serialize());
         })
@@ -59,7 +54,7 @@ weekRouter.get('/:week_num', jwtPassportMiddleware, (req, res) => {
 });
 
 // update week by week_num
-weekRouter.put('/:week_num', jwtPassportMiddleware, (req, res) => {
+weekRouter.put('/:week_num', (req, res) => {
     if (!(req.params.week_num && req.body.week_num && req.params.week_num === req.body.week_num)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
@@ -84,7 +79,7 @@ weekRouter.put('/:week_num', jwtPassportMiddleware, (req, res) => {
 });
 
 //  remove week by id
-weekRouter.delete('/:week_num', jwtPassportMiddleware, (req, res) => {
+weekRouter.delete('/:week_num', (req, res) => {
     return week.findByIdAndRemove(req.params.week_num)
         .then(() => {
             console.log('deleting entry...');

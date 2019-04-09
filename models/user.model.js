@@ -1,7 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose'); 
-const bcrypt = require('bcryptjs');  
+//const bcrypt = require('bcryptjs');  
 
 const userSchema = new mongoose.Schema({
     user_fname: { type: String, required: true },
@@ -17,7 +17,7 @@ userSchema.virtual('userName').get(function(){
 userSchema.methods.serialize = function() {
     return {
         id: this._id,
-        user_name: this.user_fname + this.user_lname,
+        user_name: this.userName,
         user_loginid_email: this.user_loginid_email
     };
 };
