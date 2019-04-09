@@ -30,6 +30,7 @@ weekRouter.post('/', (req, res) => {
 
 // get all weeks
 weekRouter.get('/', (req, res) => {
+    console.log('at the get');
     Week.find()
         .sort({ week_num: -1} )
         .then( weeks => {
@@ -41,9 +42,9 @@ weekRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one week by week_num
-weekRouter.get('/:week_id', (req, res) => {
-    week.findById(req.params.week_id)
+// retrieve one week by id
+weekRouter.get('/:id', (req, res) => {
+    Week.findById(req.params.id)
         .then(week => {
             return res.json(week.serialize());
         })
@@ -53,14 +54,14 @@ weekRouter.get('/:week_id', (req, res) => {
         });
 });
 
-// update week by week_num
-weekRouter.put('/:week_num', (req, res) => {
-    if (!(req.params.week_num && req.body.week_num && req.params.week_num === req.body.week_num)) {
+// update week by id
+weekRouter.put('/:id', (req, res) => {
+    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
     const updated = {};
-    const updateableFields = ['week_num', 'week_enddate'];
+    const updateableFields = ['week_num','week_enddate'];
 
     updateableFields.forEach(field => {
         if(field in req.body) {
@@ -68,7 +69,7 @@ weekRouter.put('/:week_num', (req, res) => {
         }
     });
 
-    Week.findByIdAndUpdate(req.params.week_num, {$set: updated}, {new: true})
+    Week.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then((updatedWeek) => {
             return res.status(204).end();
         })

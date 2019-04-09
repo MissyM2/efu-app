@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 const strategySchema = new mongoose.Schema({
-    strategy_type: { type: string, required: true },
+    strategy_type: { type: String, required: true },
     strategy_desc: { type: String, required: true },
     strategy_credit: { type: String }
 });

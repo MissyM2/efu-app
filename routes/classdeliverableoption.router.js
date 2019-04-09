@@ -2,16 +2,16 @@
 
 const express = require('express');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.classdeliverable_option');
-const {Deliverabletype} = require('./models/classdeliverable_option.model');
-const {Classdeliverableoption} = require('./models/classdeliverable_option.model');
+//const { jwtPassportMiddleware } = require('../auth/auth.classdeliverableoption');
+const {Deliverabletype} = require('../models/classdeliverableoption.model');
+const {Classdeliverableoption} = require('../models/classdeliverableoption.model');
 
 const deliverabletypeRouter = express.Router();
-const classdeliverable_optionRouter = express.Router();
+const classdeliverableoptionRouter = express.Router();
 
 
 //////////
-// for deliverable options
+// for deliverable types
 /////////
 
 // add a new deliverabletype
@@ -27,7 +27,7 @@ deliverabletypeRouter.post('/', (req, res) => {
     }
     Deliverabletype
         .create({
-            deliverabletype_pressure: req.body.deliverabletype_pressue,
+            deliverabletype_pressure: req.body.deliverabletype_pressure,
             deliverabletype_def: req.body.deliverabletype_def,
         })
         .then(deliverabletype => {
@@ -66,13 +66,12 @@ deliverabletypeRouter.get('/:id', (req, res) => {
 });
 
 // update deliverabletype by deliverabletype_type
-deliverabletypeRouter.put('/:deliverabletype_type', (req, res) => {
+deliverabletypeRouter.put('/:id', (req, res) => {
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
-
     const updated = {};
-    const updateableFields = ['deliverabletype_type', 'deliverabletype_name', 'deliverabletype_desc', 'deliverabletype_prephrs'];
+    const updateableFields = ['deliverabletype_pressure', 'deliverabletype_def'];
 
     updateableFields.forEach(field => {
         if(field in req.body) {
@@ -80,7 +79,7 @@ deliverabletypeRouter.put('/:deliverabletype_type', (req, res) => {
         }
     });
 
-    Deliverabletype.findByIdAndUpdate(req.params.deliverabletype_id, {$set: updated}, {new: true})
+    Deliverabletype.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updateddeliverabletype => {
             return res.status(204).end();
         })
@@ -107,9 +106,9 @@ deliverabletypeRouter.delete('/:id', (req, res) => {
 // for class deliverable options
 ///////////////
 
-// add a new classdeliverable_option
-classdeliverable_optionRouter.post('/', (req, res) => {
-    const reqFields = ['classdeliverable_option_i', 'classdeliverable_option_name', 'classdeliverable_option_name', 'classdeliverable_option_prephrs'];
+// add a new classdeliverableoption
+classdeliverableoptionRouter.post('/', (req, res) => {
+    const reqFields = ['classdeliverableoption_type', 'classdeliverableoption_name', 'classdeliverableoption_prephrs'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
             if(!(field in req.body)) {
@@ -120,13 +119,13 @@ classdeliverable_optionRouter.post('/', (req, res) => {
     }
     Classdeliverableoption
         .create({
-            classdeliverable_option_type: req.body.classdeliverable_option_type,
-            classdeliverable_option_name: req.body.classdeliverable_option_name,
-            classdeliverable_option_desc: req.body.classdeliverable_option_desc,
-            classdeliverable_option_desc: req.body.classdeliverable_option_prephrs
+            classdeliverableoption_type: req.body.classdeliverableoption_type,
+            classdeliverableoption_name: req.body.classdeliverableoption_name,
+            classdeliverableoption_desc: req.body.classdeliverableoption_desc,
+            classdeliverableoption_desc: req.body.classdeliverableoption_prephrs
         })
-        .then(classdeliverable_option => {
-            return res.status(201).json(classdeliverable_option.serialize());
+        .then(classdeliverableoption => {
+            return res.status(201).json(classdeliverableoption.serialize());
         })
         .catch(err => {
             console.error(err);
@@ -135,12 +134,12 @@ classdeliverable_optionRouter.post('/', (req, res) => {
     });
 
 
-// get all classdeliverable_options
-classdeliverable_optionRouter.get('/', (req, res) => {
+// get all classdeliverableoptions
+classdeliverableoptionRouter.get('/', (req, res) => {
     Classdeliverableoption.find()
-        .sort({ classdeliverable_option_type: -1} )
-        .then( classdeliverable_option => {
-            return res.json(classdeliverable_option);
+        .sort({ classdeliverableoption_type: -1} )
+        .then( classdeliverableoption => {
+            return res.json(classdeliverableoption);
         })
         .catch(error => {
             console.error(err);
@@ -148,11 +147,11 @@ classdeliverable_optionRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one classdeliverable_option by classdeliverable_option_type
-classdeliverable_optionRouter.get('/:classdeliverable_option_type', (req, res) => {
-    Classdeliverableoption.findById(req.params.classdeliverable_option_type)
-        .then(classdeliverable_option => {
-            return res.json(classdeliverable_option.serialize());
+// retrieve one classdeliverableoption by classdeliverableoption_type
+classdeliverableoptionRouter.get('/:classdeliverableoption_type', (req, res) => {
+    Classdeliverableoption.findById(req.params.classdeliverableoption_type)
+        .then(classdeliverableoption => {
+            return res.json(classdeliverableoption.serialize());
         })
         .catch(error => {
             console.error(err);
@@ -160,14 +159,14 @@ classdeliverable_optionRouter.get('/:classdeliverable_option_type', (req, res) =
         });
 });
 
-// update classdeliverable_option by classdeliverable_option_type
-classdeliverable_optionRouter.put('/:classdeliverable_option_type', (req, res) => {
-    if (!(req.params.classdeliverable_option_type && req.body.classdeliverable_option_type && req.params.classdeliverable_option_type === req.body.classdeliverable_option_type)) {
+// update classdeliverableoption by classdeliverableoption_type
+classdeliverableoptionRouter.put('/:id', (req, res) => {
+    if (!(req.params.id && req.body.id && req.params.ide === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
     const updated = {};
-    const updateableFields = ['classdeliverable_option_type', 'classdeliverable_option_name', 'classdeliverable_option_desc', 'classdeliverable_option_prephrs'];
+    const updateableFields = ['classdeliverableoption_type', 'classdeliverableoption_name', 'classdeliverableoption_desc', 'classdeliverableoption_prephrs'];
 
     updateableFields.forEach(field => {
         if(field in req.body) {
@@ -175,8 +174,8 @@ classdeliverable_optionRouter.put('/:classdeliverable_option_type', (req, res) =
         }
     });
 
-    Classdeliverableoption.findByIdAndUpdate(req.params.classdeliverable_option_id, {$set: updated}, {new: true})
-        .then(updatedclassdeliverable_option => {
+    Classdeliverableoption.findByIdAndUpdate(req.params.classdeliverableoption_id, {$set: updated}, {new: true})
+        .then(updatedclassdeliverableoption => {
             return res.status(204).end();
         })
         .catch(err =>  {
@@ -185,9 +184,9 @@ classdeliverable_optionRouter.put('/:classdeliverable_option_type', (req, res) =
         });
 });
 
-//  remove classdeliverable_option by id
-classdeliverable_optionRouter.delete('/:classdeliverable_option_type', (req, res) => {
-    return Classdeliverableoption.findByIdAndRemove(req.params.classdeliverable_option_type)
+//  remove classdeliverableoption by id
+classdeliverableoptionRouter.delete('/:id', (req, res) => {
+    return Classdeliverableoption.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();
@@ -198,4 +197,4 @@ classdeliverable_optionRouter.delete('/:classdeliverable_option_type', (req, res
         });
 });
 
-module.exports = {classdeliverable_optionRouter};
+module.exports = {deliverabletypeRouter, classdeliverableoptionRouter};

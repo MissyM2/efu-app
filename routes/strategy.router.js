@@ -2,13 +2,13 @@
 
 const express = require('express');
 
-const { jwtPassportMiddleware } = require('../auth/auth.strategy');
-const {Strategy} = require('./models/strategy.model');
+//const { jwtPassportMiddleware } = require('../auth/auth.strategy');
+const {Strategy} = require('../models/strategy.model');
 
 const strategyRouter = express.Router();
 
 // add a new strategy
-strategyRouter.post('/', jwtPassportMiddleware, (req, res) => {
+strategyRouter.post('/', (req, res) => {
     const reqFields = ['strategy_type', 'strategy_desc'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
@@ -35,7 +35,7 @@ strategyRouter.post('/', jwtPassportMiddleware, (req, res) => {
 
 
 // get all strategys
-strategyRouter.get('/', jwtPassportMiddleware, (req, res) => {
+strategyRouter.get('/', (req, res) => {
     Strategy.find()
         .sort({ strategy_type: -1} )
         .then( strategy => {
@@ -48,7 +48,7 @@ strategyRouter.get('/', jwtPassportMiddleware, (req, res) => {
 });
 
 // retrieve one strategy by strategy_num
-strategyRouter.get('/:strategy_id', jwtPassportMiddleware, (req, res) => {
+strategyRouter.get('/:strategy_id', (req, res) => {
     Strategy.findById(req.params.strategy_id)
         .then(strategy => {
             return res.json(strategy.serialize());
@@ -60,7 +60,7 @@ strategyRouter.get('/:strategy_id', jwtPassportMiddleware, (req, res) => {
 });
 
 // update strategy by strategy_num
-strategyRouter.put('/:strategy_id', jwtPassportMiddleware, (req, res) => {
+strategyRouter.put('/:strategy_id', (req, res) => {
     if (!(req.params.strategy_id && req.body.strategy_id && req.params.strategy_id === req.body.strategy_id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
@@ -85,7 +85,7 @@ strategyRouter.put('/:strategy_id', jwtPassportMiddleware, (req, res) => {
 });
 
 //  remove strategy by id
-strategyRouter.delete('/:strategy_id', jwtPassportMiddleware, (req, res) => {
+strategyRouter.delete('/:strategy_id', (req, res) => {
     return Strategy.findByIdAndRemove(req.params.strategy_id)
         .then(() => {
             console.log('deleting entry...');

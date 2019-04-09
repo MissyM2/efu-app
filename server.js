@@ -8,24 +8,29 @@ const bodyParser = require('body-parser');
 
 const {PORT, MONGO_DATABASE_URL} = require('./config');
 
+app.use(bodyParser.json());
+
 // import modules
+const {deliverabletypeRouter} = require('./routes/classdeliverableoption.router');
 const {classdeliverableoptionRouter} = require('./routes/classdeliverableoption.router');
 const {schooltermRouter} = require('./routes/schoolterm.router');
 const {strategyRouter} = require('./routes/strategy.router');
 const {termclassRouter} = require('./routes/termclass.router');
 const {userRouter} = require('./routes/user.router');
-const {schooltermRouter} = require('./routes/schoolterm.router');
 const { weekRouter } = require('./routes/week.router');
-app.use(bodyParser());
+
+
 
 // routers
+app.use('/api/deliverabletype', deliverabletypeRouter);
+app.use('/api/classdeliverableoption', classdeliverableoptionRouter); 
+app.use('/api/schoolterm', schooltermRouter);
+app.use('/api/strategy', strategyRouter); 
+app.use('/api/termclass', termclassRouter); 
+app.use('/api/user', userRouter); 
 app.use('/api/week', weekRouter);
-app.use('/api/schoolterm', schooltermRouter); 
-app.use('/api/schoolterm', schooltermRouter); 
-app.use('/api/schoolterm', schooltermRouter); 
-app.use('/api/schoolterm', schooltermRouter); 
-app.use('/api/schoolterm', schooltermRouter); 
-app.use('/api/schoolterm', schooltermRouter); 
+
+
 
 
 // server operations

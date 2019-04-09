@@ -3,39 +3,40 @@
 const express = require('express');
 
 //const { jwtPassportMiddleware } = require('../auth/auth.user');
-const {User} = require('./models/user.model');
+const {User} = require('../models/user.model');
 
 const userRouter = express.Router();
 
 // add a new user
 userRouter.post('/', (req, res) => {
     const newUser = {
-        fname: req.body.user_fname,
-        lname: req.body.user_lname,
-        loginid: req.body.user_loginid_email,
-        password: req.body.user_password
+        user_fname: req.body.user_fname,
+        user_lname: req.body.user_lname,
+        user_loginidemail: req.body.user_loginidemail,
+        user_password: req.body.user_password
     }
-    const reqFields = ['newUser.fname', 'newUser.lname', 'newUser.loginid', 'newUser.password'];
-    for (let i=0; i <reqFields.length; i++) {
-        const field = reqFields[i];
-            if(!(field in req.body)) {
-                const message = `Missing \`${field}\` in request body`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
-    }
+
+    console.log('new user is ' + newUser.body);
+
+   // const reqFields = ['newUser.user_fname', 'newUser.user_lname', 'newUser.user_loginidemail', 'newUser.user_password'];
+   // for (let i=0; i <reqFields.length; i++) {
+   //     const field = reqFields[i];
+    //        if(!(field in req.body)) {
+    //            console.error(message);
+     //           return res.status(400).send(message);
+     //
     // does the user already exist?
     return User.findOne({
         $or: [
-            {user_loginid_email: newUser.loginid}
+            {user_loginidemail: newUser.loginidemail}
         ]
     }).then(user => {
         if (user) {
             return Response.status(400).json({ error: 'Database Error:  A user that that email/loginid already exists.'});
         }
-        return User.hashpassword(newUser.password);
+        return User.hashPassword(newUser.user_password);
     }).then(passwordHash => {
-        newUser.password = passwordHash;
+        newUser.user_password = passwordHash;
         console.log(newUser);
         User.create(newUser)
             .then(newUser => {
@@ -54,7 +55,7 @@ userRouter.post('/', (req, res) => {
 userRouter.get('/', (req, res) => {
     User.find()
         .sort({ user_lname: -1} )
-        .then(users => res.status(200).json(users.map(user => user.serialize())
+        .then(users => res.status(200).json(users.map(user => user.serialize())))
         .catch(err => {
             console.error(err);
             return res.status(500).json({ error: 'something went wrong!' });
@@ -72,13 +73,13 @@ userRouter.get('/:userid', (req, res) => {
 });
 
 // update user by user_type
-userRouter.put('/:loginid', (req, res) => {
-    if (!(req.params.user_loginid_email && req.body.user_loginid_email && req.params.user_loginid_email === req.body.user_loginid_email)) {
+userRouter.put('/:id', (req, res) => {
+    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
     const updated = {};
-    const updateableFields = ['user_fname', 'user_lname', 'user_loginid_email', 'user_password'];
+    const updateableFields = ['user_fname', 'user_lname', 'user_loginidemail', 'user_password'];
 
     updateableFields.forEach(field => {
         if(field in req.body) {
@@ -86,7 +87,7 @@ userRouter.put('/:loginid', (req, res) => {
         }
     });
 
-    User.findByIdAndUpdate(req.params.user_loginid_email, {$set: updated}, {new: true})
+    User.findByIdAndUpdate(req.params.user_loginidemail, {$set: updated}, {new: true})
         .then(updateduser => {
             return res.status(204).end();
         })
@@ -98,7 +99,7 @@ userRouter.put('/:loginid', (req, res) => {
 
 //  remove user by id
 userRouter.delete('/:loginid', (req, res) => {
-    return User.findByIdAndRemove(req.params.user_loginid_email)
+    return User.findByIdAndRemove(req.params.user_loginidemail)
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();

@@ -15,24 +15,24 @@ deliverabletypeSchema.methods.serialize = function() {
     };
 };
 
-const class_deliverable_optionSchema = new mongoose.Schema({
-    class_deliverable_option_type: [deliverable_typeSchema],
-    class_deliverable_option_name: { type: String, required: true },
-    class_deliverable_option_desc: {type:String},
-    class_deliverable_option_prephrs: {type: Number, required: true},
+const classdeliverableoptionSchema = new mongoose.Schema({
+    classdeliverableoption_type: [deliverabletypeSchema],
+    classdeliverableoption_name: { type: String, required: true },
+    classdeliverableoption_desc: {type:String},
+    classdeliverableoption_prephrs: {type: Number, required: true},
 });
 
-class_deliverable_optionSchema.methods.serialize = function() {
+classdeliverableoptionSchema.methods.serialize = function() {
     return {
         id: this._id,
-        class_deliverable_option_type: this.class_deliverable_option_type,
-        class_deliverable_option_name: this.class_deliverable_option_name,
-        class_deliverable_option_desc: this.class_deliverable_option_desc,
-        class_deliverable_option_prephrs: this.class_deliverable_option_prephrs
+        classdeliverableoption_type: this.classdeliverableoption_type,
+        classdeliverableoption_name: this.classdeliverableoption_name,
+        classdeliverableoption_desc: this.classdeliverableoption_desc,
+        classdeliverableoption_prephrs: this.classdeliverableoption_prephrs
     };
 };
 
-const Deliverabletype = mongoose.model('Deliverabletype', deliverable_typeSchema);
-const Classdeliverableoption = mongoose.model('Classdeliverableoption', class_deliverable_optionSchema);
+const Deliverabletype = mongoose.model('Deliverabletype', deliverabletypeSchema);
+const Classdeliverableoption = mongoose.model('Classdeliverableoption', classdeliverableoptionSchema);
 
 module.exports = {Deliverabletype, Classdeliverableoption};

@@ -9,22 +9,24 @@ const schooltermRouter = express.Router();
 
 // add a new schoolterm
 schooltermRouter.post('/', (req, res) => {
-    console.log(req.body);
-    const reqFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_level'];
-    for (let i=0; i <reqFields.length; i++) {
-        const field = reqFields[i];
-            if(!(field in req.body)) {
-                const message = `Missing \`${field}\` in request body`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
+    const newSchoolterm = {
+        schoolterm_institution: req.body.schoolterm_institution,
+        schoolterm_level: req.body.schoolterm_level,
+        schoolterm_desc: req.body.schoolterm_desc
     }
+    console.log(req.body);
+
+    const reqFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
+    //for (let i=0; i <reqFields.length; i++) {
+    //    const field = reqFields[i];
+    //        if(!(field in req.body)) {
+     //           const message = `Missing \`${field}\` in request body`;
+     //           console.error(message);
+      //          return res.status(400).send(message);
+         //   }
+    //}
     Schoolterm
-        .create({
-            schoolterm_institution: req.body.schoolterm_institution,
-            schoolterm_level: req.body.schoolterm_level,
-            schoolterm_desc: req.body.schoolterm_desc
-        })
+        .create(newSchoolterm)
         .then(schoolterm => {
             return res.status(201).json(schoolterm.serialize());
         })
@@ -60,9 +62,9 @@ schooltermRouter.get('/:schoolterm_id', (req, res) => {
         });
 });
 
-// update schoolterm by schoolterm_num
-schooltermRouter.put('/:schoolterm_id', (req, res) => {
-    if (!(req.params.schoolterm_id && req.body.schoolterm_id && req.params.schoolterm_id === req.body.schoolterm_id)) {
+// update schoolterm by id
+schooltermRouter.put('/:id', (req, res) => {
+    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
@@ -75,7 +77,7 @@ schooltermRouter.put('/:schoolterm_id', (req, res) => {
         }
     });
 
-    Schoolterm.findByIdAndUpdate(req.params.schoolterm_id, {$set: updated}, {new: true})
+    Schoolterm.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updatedschoolterm => {
             return res.status(204).end();
         })
