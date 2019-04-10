@@ -1,21 +1,41 @@
 'use strict';
 
 const express = require('express');
+const Joi = require('joi');
 
 //const { jwtPassportMiddleware } = require('../auth/auth.deliverable');
-const {Deliverable} = require('../models/deliverable.model');
+const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
 
 const deliverableRouter = express.Router();
 
 
 // add a new deliverable
 deliverableRouter.post('/', (req, res) => {
+
+    // check that all req fields are in body
+    const reqFields = ['deliverable_pressure', 'deliverable_name', 'deliverable_prephrs'];
+    for (let i=0; i <reqFields.length; i++) {
+        const field = reqFields[i];
+            if(!(field in req.body)) {
+                const message = `Missing \`${field}\` in request body`;
+                console.error(message);
+                return res.status(400).send(message);
+           };
+    };
+
+    // create object with request items
     const newDeliverable = {
             deliverable_pressure: req.body.deliverable_pressure,
             deliverable_name: req.body.deliverable_name,
             deliverable_desc: req.body.deliverable_desc,
             deliverable_prephrs: req.body.deliverable_prephrs
     };
+
+    // validation
+    const validation = Joi.validate(newDeliverable, DeliverableJoiSchema);
+    if (validation.error){
+        return Response.status(400).json({error: validation.error});
+    }
 
     Deliverable.create(newDeliverable)
         .then(deliverable => {
@@ -32,10 +52,12 @@ deliverableRouter.post('/', (req, res) => {
 deliverableRouter.get('/', (req, res) => {
     Deliverable.find()
         .sort({ deliverable_type: -1} )
-        .then( deliverable => {
-            return res.json(deliverable);
+        .then( deliverables => {
+            return res.status(200)
+                .json(deliverables.map(deliverable => deliverable.serialize())
+                );
         })
-        .catch(error => {
+        .catch(err => {
             console.error(err);
             return res.status(500).json({ error: 'something went wrong!' });
         });
@@ -53,14 +75,31 @@ deliverableRouter.get('/:id', (req, res) => {
         });
 });
 
-// update deliverable by deliverable_type
+// update deliverable by id
 deliverableRouter.put('/:id', (req, res) => {
+
+    // check for existence of params.id and body.id and if they match
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
+
+    // create object with updated fields
+    const deliverableUpdate = {
+        deliverable_pressure: req.body.deliverable_pressure,
+        deliverable_name: req.body.deliverable_name,
+        deliverable_desc: req.body.deliverable_desc,
+        deliverable_prephrs: req.body.deliverable_prephrs
+    };
+
+    // validate fields with Joi
+    const validation = Joi.validate(deliverableUpdate, DeliverableJoiSchema);
+    if (validation.error) {
+        return response.status(400).json({error: validation.error});
+    }
+
+    //  find fields to be updated
     const updated = {};
     const updateableFields = ['deliverable_pressure', 'deliverable_name', 'deliverable_desc', 'deliverable_prephrs'];
-
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];

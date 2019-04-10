@@ -1,6 +1,7 @@
 'user strict'
 
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const schooltermSchema = new mongoose.Schema({
     schoolterm_institution: { type: String, required: true },
@@ -17,6 +18,13 @@ schooltermSchema.methods.serialize = function() {
     };
 };
 
+const SchooltermJoiSchema = Joi.object().keys({
+    schoolterm_institution: Joi.string().required(),
+    schoolterm_level: Joi.string().required(),
+    schoolterm_desc: Joi.string().required(),
+
+})
+
 const Schoolterm = mongoose.model('Schoolterm', schooltermSchema);
 
-module.exports = {Schoolterm};
+module.exports = {Schoolterm, SchooltermJoiSchema};

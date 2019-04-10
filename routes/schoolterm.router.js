@@ -1,30 +1,38 @@
 'use strict';
 
 const express = require('express');
+const Joi = require('joi');
 
 //const { jwtPassportMiddleware } = require('../auth/auth.schoolterm');
-const {Schoolterm} = require('../models/schoolterm.model');
+const {Schoolterm, SchooltermJoiSchema} = require('../models/schoolterm.model');
 
 const schooltermRouter = express.Router();
 
 // add a new schoolterm
 schooltermRouter.post('/', (req, res) => {
+    
+    // check that all req fields are in body
+    const reqFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
+    for (let i=0; i <reqFields.length; i++) {
+        const field = reqFields[i];
+            if(!(field in req.body)) {
+                const message = `Missing \`${field}\` in request body`;
+                console.error(message);
+                return res.status(400).send(message);
+           };
+    };
+
     const newSchoolterm = {
         schoolterm_institution: req.body.schoolterm_institution,
         schoolterm_level: req.body.schoolterm_level,
         schoolterm_desc: req.body.schoolterm_desc
     }
-    console.log(req.body);
 
-    const reqFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
-    //for (let i=0; i <reqFields.length; i++) {
-    //    const field = reqFields[i];
-    //        if(!(field in req.body)) {
-     //           const message = `Missing \`${field}\` in request body`;
-     //           console.error(message);
-      //          return res.status(400).send(message);
-         //   }
-    //}
+    const validation = Joi.validate(newSchoolterm, SchooltermJoiSchema);
+    if(validation.error) {
+        return response.status(400).json({error:validation.error});
+    }
+
     Schoolterm
         .create(newSchoolterm)
         .then(schoolterm => {
@@ -41,18 +49,20 @@ schooltermRouter.post('/', (req, res) => {
 schooltermRouter.get('/', (req, res) => {
     Schoolterm.find()
         .sort({ schoolterm_institution: -1} )
-        .then( schoolterm => {
-            return res.json(schoolterm);
+        .then(schoolterms => {
+            return res.status(200)
+            .json(schoolterms.map(schoolterm => schoolterm.serialize())
+            );
         })
-        .catch(error => {
+        .catch(err => {
             console.error(err);
             return res.status(500).json({ error: 'something went wrong!' });
         });
 });
 
-// retrieve one schoolterm by schoolterm_num
-schooltermRouter.get('/:schoolterm_id', (req, res) => {
-    Schoolterm.findById(req.params.schoolterm_id)
+// retrieve one schoolterm by id
+schooltermRouter.get('/:id', (req, res) => {
+    Schoolterm.findById(req.params.id)
         .then(schoolterm => {
             return res.json(schoolterm.serialize());
         })
@@ -64,13 +74,26 @@ schooltermRouter.get('/:schoolterm_id', (req, res) => {
 
 // update schoolterm by id
 schooltermRouter.put('/:id', (req, res) => {
+
+    // check for existene of params.id and body.id and if they match
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
+    const schooltermUpdate = {
+        schoolterm_institution: req.body.schoolterm_institution,
+        schoolterm_level: req.body.schoolterm_level,
+        schoolterm_desc: req.body.schoolterm_desc
+    }
+
+    const validation = Joi.validate(schooltermUpdate, SchooltermJoiSchema);
+    if (validation.error) {
+        return response.status(400).json({error: validation.error});
+    }
+
+    // determine fields to be updated
     const updated = {};
     const updateableFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
-
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
@@ -78,12 +101,11 @@ schooltermRouter.put('/:id', (req, res) => {
     });
 
     Schoolterm.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
-        .then(updatedschoolterm => {
-            return res.status(204).end();
+        .then( updatedItem => {
+            return res.status(204).json(updatedItem.serialize());
         })
         .catch(err =>  {
-            console.error(err);
-            return res.status(500).json({ error: 'something went wrong!' });
+            return res.status(500).json(err);
         });
 });
 
@@ -94,9 +116,8 @@ schooltermRouter.delete('/:schoolterm_id', (req, res) => {
             console.log('deleting entry...');
             return res.status(204).end();
         })
-        .catch(error => {
-            console.error(err);
-            return res.status(500).json({ error: 'something went wrong!' });
+        .catch(err => {
+            return res.status(500).json(err);
         });
 });
 

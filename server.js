@@ -1,35 +1,50 @@
 'use strict'
 
 // import dependencies
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const morgan = require('morgan');
+require ('dotenv').config();
+const express = require('express');  // for creating server
+const mongoose = require('mongoose');    // for connecting/communicating to db
+const morgan = require('morgan');  // for logging
+const passport = require('passport');  //for authentication
 const bodyParser = require('body-parser');
 
 const {PORT, MONGO_DATABASE_URL} = require('./config');
 
+const app = express();
+
+mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
+
+// use middleware
+app.use(morgan('common'));
+app.use(express.json());
+app.use(express.static('./public'));
 app.use(bodyParser.json());
 
+
+
 // import modules
-const {deliverableRouter} = require('./routes/deliverable.router');
-const {schooltermRouter} = require('./routes/schoolterm.router');
-const {strategyRouter} = require('./routes/strategy.router');
-const {termclassRouter} = require('./routes/termclass.router');
-const {userRouter} = require('./routes/user.router');
+const { deliverableRouter } = require('./routes/deliverable.router');
+const { schooltermRouter } = require('./routes/schoolterm.router');
+const { strategyRouter } = require('./routes/strategy.router');
+const { termclassRouter } = require('./routes/termclass.router');
+const { userRouter } = require('./routes/user.router');
 const { weekRouter } = require('./routes/week.router');
 
 
+// public routers
+app.use('/api/user', userRouter);
 
-// routers
+// protected routers
 app.use('/api/deliverable', deliverableRouter);
 app.use('/api/schoolterm', schooltermRouter);
 app.use('/api/strategy', strategyRouter); 
 app.use('/api/termclass', termclassRouter); 
-app.use('/api/user', userRouter); 
 app.use('/api/week', weekRouter);
 
-
+// in case of an HTTP request that is not hadles by Express server
+app.use('*', (req, res) => {
+    return res.status(404).json({ message: 'URL not found.'});
+});
 
 
 // server operations

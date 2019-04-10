@@ -1,6 +1,7 @@
 'user strict'
 
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const deliverableSchema = new mongoose.Schema({
     deliverable_pressure: { type: String, required: true },
@@ -19,6 +20,14 @@ deliverableSchema.methods.serialize = function() {
     };
 };
 
+const DeliverableJoiSchema = Joi.object().keys({
+    deliverable_pressure: Joi.string().required(),
+    deliverable_name: Joi.string().required(),
+    deliverable_desc: Joi.string().optional(),
+    deliverable_prephrs: Joi.number().required()
+
+})
+
 const Deliverable = mongoose.model('deliverable', deliverableSchema);
 
-module.exports = {Deliverable};
+module.exports = {Deliverable, DeliverableJoiSchema};
