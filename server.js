@@ -4,6 +4,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
 const {PORT, MONGO_DATABASE_URL} = require('./config');
@@ -11,8 +12,7 @@ const {PORT, MONGO_DATABASE_URL} = require('./config');
 app.use(bodyParser.json());
 
 // import modules
-const {deliverabletypeRouter} = require('./routes/classdeliverableoption.router');
-const {classdeliverableoptionRouter} = require('./routes/classdeliverableoption.router');
+const {deliverableRouter} = require('./routes/deliverable.router');
 const {schooltermRouter} = require('./routes/schoolterm.router');
 const {strategyRouter} = require('./routes/strategy.router');
 const {termclassRouter} = require('./routes/termclass.router');
@@ -22,8 +22,7 @@ const { weekRouter } = require('./routes/week.router');
 
 
 // routers
-app.use('/api/deliverabletype', deliverabletypeRouter);
-app.use('/api/classdeliverableoption', classdeliverableoptionRouter); 
+app.use('/api/deliverable', deliverableRouter);
 app.use('/api/schoolterm', schooltermRouter);
 app.use('/api/strategy', strategyRouter); 
 app.use('/api/termclass', termclassRouter); 

@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     user_fname: { type: String, required: true },
     user_lname: { type: String, required: true },
-    user_loginidemail: { type: String, required: true },
+    user_loginidemail: { type: String, required: true, unique: true },
     user_password: {type: String,required: true}
 });
 
@@ -19,7 +19,7 @@ userSchema.methods.serialize = function() {
         id: this._id,
         user_fname: this.user_fname,
         user_lname: this.user_lname,
-        user_loginid_email: this.user_loginidemail
+        user_loginidemail: this.user_loginidemail
     };
 };
 
