@@ -19,6 +19,9 @@ app.use(morgan('common'));
 app.use(express.json());
 app.use(bodyParser.json());
 
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
 
 
 // import modules
@@ -28,6 +31,7 @@ const { strategyRouter } = require('./routes/strategy.router');
 const { termclassRouter } = require('./routes/termclass.router');
 const { userRouter } = require('./routes/user.router');
 const { weekRouter } = require('./routes/week.router');
+const { authRouter } = require('./routes/auth.router');
 
 
 // public routers
