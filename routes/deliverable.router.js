@@ -5,7 +5,7 @@ const Joi = require('joi');
 const passport = require('passport');
 
 
-const {jwtAuth} = require('../passport/jwt');
+const {jwtAuth} = require('../auth/auth.strategies');
 const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
 
 const deliverableRouter = express.Router();

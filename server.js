@@ -7,8 +7,7 @@ const mongoose = require('mongoose');    // for connecting/communicating to db
 const morgan = require('morgan');  // for logging
 const passport = require('passport');  //for authentication
 const bodyParser = require('body-parser');  // for parsing json
-const localStrategy = require('./passport/local'); // for logging in 
-const jwtStrategy = require('./passport/jwt'); // for refreshing tokens
+const {localStrategy, jwtStrategy} = require('./auth/auth.strategies'); // for authentication and refreshing tokens
 
 const {PORT, MONGO_DATABASE_URL} = require('./config');
 
@@ -23,15 +22,28 @@ const { suggestionRouter } = require('./routes/suggestion.router');
 const { termclassRouter } = require('./routes/termclass.router');
 const { userRouter } = require('./routes/user.router');
 const { weekRouter } = require('./routes/week.router');
-const { authRouter } = require('./routes/auth.router');
+const { authRouter } = require('./auth/auth.router');
 
-
-
-// use middleware
-app.use(morgan('common'));
 app.use(express.json());
+
+// logging
+app.use(morgan('common'));
+
+// converting to json format
 app.use(bodyParser.json());
 
+// CORS
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
+    if (req.method === 'OPTIONS') {
+      return res.send(204);
+    }
+    next();
+});
+
+// authentication
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
