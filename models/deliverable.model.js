@@ -26,7 +26,7 @@ const DeliverableJoiSchema = Joi.object().keys({
     deliverable_desc: Joi.string().optional(),
     deliverable_prephrs: Joi.number().required()
 
-})
+});
 
 const Deliverable = mongoose.model('deliverable', deliverableSchema);
 

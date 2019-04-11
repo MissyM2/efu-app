@@ -50,6 +50,7 @@ schooltermRouter.get('/', (req, res) => {
     Schoolterm.find()
         .sort({ schoolterm_institution: -1} )
         .then(schoolterms => {
+            console.log(schoolterms);
             return res.status(200)
             .json(schoolterms.map(schoolterm => schoolterm.serialize())
             );
@@ -102,7 +103,7 @@ schooltermRouter.put('/:id', (req, res) => {
 
     Schoolterm.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then( updatedItem => {
-            return res.status(204).json(updatedItem.serialize());
+            return res.status(200).json(updatedItem.serialize());
         })
         .catch(err =>  {
             return res.status(500).json(err);

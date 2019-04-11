@@ -1,6 +1,7 @@
 'user strict'
 
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const weekSchema = new mongoose.Schema({
     week_num: { type: Number },
@@ -15,6 +16,11 @@ weekSchema.methods.serialize = function() {
     };
 };
 
+const WeekJoiSchema = Joi.object().keys({
+    week_num: Joi.number().required(),
+    week_enddate: Joi.date().required(),
+});
+
 const Week = mongoose.model('Week', weekSchema);
 
-module.exports = {Week};
+module.exports = {Week, WeekJoiSchema};

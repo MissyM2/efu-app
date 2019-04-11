@@ -17,7 +17,6 @@ mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
 // use middleware
 app.use(morgan('common'));
 app.use(express.json());
-app.use(express.static('./public'));
 app.use(bodyParser.json());
 
 

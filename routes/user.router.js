@@ -1,14 +1,24 @@
 'use strict';
 
 const express = require('express');
+const Joi = require('joi');
 
 //const { jwtPassportMiddleware } = require('../auth/auth.user');
-const {User} = require('../models/user.model');
+const {User, UserJoiSchema} = require('../models/user.model');
 
 const userRouter = express.Router();
 
 // add a new user
 userRouter.post('/', (req, res) => {
+
+     // check that all req fields are present 
+     const reqFields = ['user_fname', 'user_lname', 'user_loginidemail', 'user_password'];
+     const missingField = reqFields.find(field => !(field in req.body));
+     if (missingField) {
+         return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
+     }
+
+    // create object with request items
     const newUser = {
         user_fname: req.body.user_fname,
         user_lname: req.body.user_lname,
@@ -16,15 +26,14 @@ userRouter.post('/', (req, res) => {
         user_password: req.body.user_password
     }
 
-    console.log('new user is ' + newUser.body);
+    // validation
+    const validation = Joi.validate(newUser, UserJoiSchema);
+    console.log(validation)
+    console.log(validation.error);
+    if (validation.error){
+        return Response.status(400).json({error: validation.error});
+    }
 
-   // const reqFields = ['newUser.user_fname', 'newUser.user_lname', 'newUser.user_loginidemail', 'newUser.user_password'];
-   // for (let i=0; i <reqFields.length; i++) {
-   //     const field = reqFields[i];
-    //        if(!(field in req.body)) {
-    //            console.error(message);
-     //           return res.status(400).send(message);
-     //
     // does the user already exist?
     return User.findOne({
         $or: [
@@ -37,13 +46,15 @@ userRouter.post('/', (req, res) => {
         return User.hashPassword(newUser.user_password);
     }).then(passwordHash => {
         newUser.user_password = passwordHash;
-        console.log(newUser);
         User.create(newUser)
             .then(newUser => {
                 return res.status(201).json(newUser.serialize());
             })
             .catch(err => {
-                console.error(err);
+                // forward any validation errors to client, otherwise, status: 500
+                if (err.reason === 'ValidationError') {
+                    return res.status(err.code).json(err);
+                }
                 res.status(500).json({ error: 'Something went wrong!'})
             });
             
@@ -62,10 +73,10 @@ userRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one user by user_id
-userRouter.get('/:userid', (req, res) => {
-    User.findById(req.params.userid)
-        .then(user => res.json(user.serialize()))
+// retrieve one user by user_loginidemail
+userRouter.get('/:user_loginidemail', (req, res) => {
+    User.find({"user_loginidemail": req.params.user_loginidemail})
+        .then(users => res.status(200).json(users.map(user => user.serialize())))
         .catch(err => {
             console.error(err);
             return res.status(500).json({ error: 'something went wrong!' })
@@ -73,21 +84,39 @@ userRouter.get('/:userid', (req, res) => {
 });
 
 // update user by user_type
-userRouter.put('/:id', (req, res) => {
-    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+userRouter.put('/:user_loginidemail', (req, res) => {
+
+    // check for existence of params.id and body.id and if they match
+    if (!(req.params.user_loginidemail && req.body.user_loginidemail && req.params.user_loginidemail === req.body.user_loginidemail)) {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
 
-    const updated = {};
-    const updateableFields = ['user_fname', 'user_lname', 'user_loginidemail', 'user_password'];
+     // create object with updated fields
+    const userUpdate = {
+        user_fname: req.body.user_fname,
+        user_lname: req.body.user_lname,
+        user_loginidemail: req.body.user_loginidemail
+    };
+    console.log('userUpdate is', userUpdate);
 
+    // validate fields with Joi
+    const validation = Joi.validate(userUpdate, UserJoiSchema);
+    if (validation.error) {
+        return response.status(400).json({error: validation.error});
+    }
+
+    //  find fields to be updated
+    const updated = {};
+    const updateableFields = ['user_fname', 'user_lname'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
         }
     });
+    console.log(updated);
 
-    User.findByIdAndUpdate(req.params.user_loginidemail, {$set: updated}, {new: true})
+    // find user and update the document
+    User.find({"user_loginidemail": req.params.user_loginidemail}, {$set: updated}, {new: true})
         .then(updateduser => {
             return res.status(204).end();
         })
@@ -98,8 +127,8 @@ userRouter.put('/:id', (req, res) => {
 });
 
 //  remove user by id
-userRouter.delete('/:loginid', (req, res) => {
-    return User.findByIdAndRemove(req.params.user_loginidemail)
+userRouter.delete('/:user_loginidemail', (req, res) => {
+    return User.findOneAndRemove({"user_loginidemail": req.params.user_loginidemail})
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();

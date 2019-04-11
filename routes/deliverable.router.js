@@ -14,14 +14,10 @@ deliverableRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
     const reqFields = ['deliverable_pressure', 'deliverable_name', 'deliverable_prephrs'];
-    for (let i=0; i <reqFields.length; i++) {
-        const field = reqFields[i];
-            if(!(field in req.body)) {
-                const message = `Missing \`${field}\` in request body`;
-                console.error(message);
-                return res.status(400).send(message);
-           };
-    };
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
+    }
 
     // create object with request items
     const newDeliverable = {
@@ -37,6 +33,7 @@ deliverableRouter.post('/', (req, res) => {
         return Response.status(400).json({error: validation.error});
     }
 
+    // create the new deliverable
     Deliverable.create(newDeliverable)
         .then(deliverable => {
             return res.status(201).json(deliverable.serialize());
@@ -64,12 +61,13 @@ deliverableRouter.get('/', (req, res) => {
 });
 
 // retrieve one deliverable by deliverable_type
-deliverableRouter.get('/:id', (req, res) => {
-    Deliverable.findById(req.params.id)
-        .then(deliverable => {
-            return res.json(deliverable.serialize());
+deliverableRouter.get('/:deliverable_pressure', (req, res) => {
+    console.log(req.params.deliverable_pressure);
+    Deliverable.find({"deliverable_pressure": req.params.deliverable_pressure})
+        .then(deliverables => {
+            return res.json(deliverables.map(deliverable => deliverable.serialize()));
         })
-        .catch(error => {
+        .catch(err => {
             console.error(err);
             return res.status(500).json({ error: 'something went wrong!' });
         });
@@ -106,6 +104,7 @@ deliverableRouter.put('/:id', (req, res) => {
         }
     });
 
+    // find the deliverable and update it
     Deliverable.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updateddeliverable => {
             return res.status(204).end();

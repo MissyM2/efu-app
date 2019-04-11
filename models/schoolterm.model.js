@@ -12,9 +12,9 @@ const schooltermSchema = new mongoose.Schema({
 schooltermSchema.methods.serialize = function() {
     return {
         id: this._id,
-        schoolterm_institution: this.term_institution,
-        schoolterm_level: this.term_level,
-        schoolterm_desc: this.term_desc,
+        schoolterm_institution: this.schoolterm_institution,
+        schoolterm_level: this.schoolterm_level,
+        schoolterm_desc: this.schoolterm_desc,
     };
 };
 
