@@ -1,12 +1,13 @@
 'use strict';
 
 const express = require('express');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.strategy');
 const {Termclass, TermclassJoiSchema} = require('../models/termclass.model');
 const Joi = require('joi');
 
 const termclassRouter = express.Router();
+termclassRouter.use("/", passport.authenticate('jwt', { session: false }));
 
 // add a new termclass
 termclassRouter.post('/', (req, res) => {

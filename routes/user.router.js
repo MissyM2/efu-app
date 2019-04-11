@@ -2,11 +2,13 @@
 
 const express = require('express');
 const Joi = require('joi');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.user');
 const {User, UserJoiSchema} = require('../models/user.model');
 
 const userRouter = express.Router();
+userRouter.use("/", passport.authenticate('local', { session: false }));
+
 
 // add a new user
 userRouter.post('/', (req, res) => {

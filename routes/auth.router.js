@@ -1,27 +1,34 @@
 'use strict';
 
 const express = require('express');
-const mongoose = require('mongoose');
-const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
 const {JWT_SECRET, JWT_EXPIRY} = require('../config');
 
 const authRouter = express.Router();
+const localAuth = passport.authenticate('local', {session: false});
+const jwtAuth = passport.authenticate('jwt', {session: false});
+
+function createAuthToken(user) {
+    return jwt.sign({user}, JWT_SECRET, {
+        subject: user.username,
+        expiresIn: JWT_EXPIRY,
+        algorithm: 'HS256'
+    });
+};
 
 // authenticate upon login
-const localAuth = passport.authenticate('local', {session: false, failWithError: True});
-router.post('/login', localAuth, function(req, res) {
-    const authToken = createAuthToken(req.user);
-    console.log(`${req.user.username} successfully logged in.`);
-    return res.json(req.user);
+authRouter.post('/login', localAuth, function(req, res) {
+    const user = req.user.serialize();
+    const authToken = createAuthToken(user);
+    return res.json({authToken});
 });
 
 // refresh token
-const jwtAuth = passport.authenticate('jwt', {session: false, failWithError: True});
-router.post('/refresh', jwtAuth, function(req, res) {
-    const authToken = createAuthToken(req.user);
-    console.log(`${req.user.username} token is successfully refreshed.`);
+authRouter.post('/refresh', jwtAuth, function(req, res) {
+    const user = req.user.serialize();
+    const authToken = createAuthToken(user);
     res.json({authToken});
 });
 

@@ -2,11 +2,12 @@
 
 const express = require('express');
 const Joi = require('joi');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.strategy');
 const {Week, WeekJoiSchema} = require('../models/week.model');
 
 const weekRouter = express.Router();
+weekRouter.use('/', passport.authenticate('jwt', { session: false }));
 
 // add a new week
 weekRouter.post('/', (req, res) => {

@@ -2,17 +2,19 @@
 
 const express = require('express');
 const Joi = require('joi');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.strategy');
-const {Strategy, StrategyJoiSchema} = require('../models/strategy.model');
+const {suggestion, suggestionJoiSchema} = require('../models/suggestion.model');
 
-const strategyRouter = express.Router();
+const suggestionRouter = express.Router();
+suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 
-// add a new strategy
-strategyRouter.post('/', (req, res) => {
+
+// add a new suggestion
+suggestionRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['strategy_type', 'strategy_desc'];
+    const reqFields = ['suggestion_type', 'suggestion_desc'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
             if(!(field in req.body)) {
@@ -23,22 +25,22 @@ strategyRouter.post('/', (req, res) => {
     }
 
     // create object with request items
-    const newStrategy = {
-        strategy_type: req.body.strategy_type,
-        strategy_desc: req.body.strategy_desc,
-        strategy_credit: req.body.strategy_credit
+    const newsuggestion = {
+        suggestion_type: req.body.suggestion_type,
+        suggestion_desc: req.body.suggestion_desc,
+        suggestion_credit: req.body.suggestion_credit
     };
 
     // validation
-    const validation = Joi.validate(newStrategy, StrategyJoiSchema);
+    const validation = Joi.validate(newsuggestion, suggestionJoiSchema);
     if (validation.error){
         return Response.status(400).json({error: validation.error});
     }
 
-    // create new strategy
-    Strategy.create(newStrategy)
-        .then(strategy => {
-            return res.status(201).json(strategy.serialize());
+    // create new suggestion
+    suggestion.create(newsuggestion)
+        .then(suggestion => {
+            return res.status(201).json(suggestion.serialize());
         })
         .catch(err => {
             console.error(err);
@@ -48,12 +50,12 @@ strategyRouter.post('/', (req, res) => {
 
 
 // get all strategies
-strategyRouter.get('/', (req, res) => {
-    Strategy.find()
-        .sort({ strategy_type: -1} )
+suggestionRouter.get('/', (req, res) => {
+    suggestion.find()
+        .sort({ suggestion_type: -1} )
         .then( strategies => {
                 return res.status(200)
-                    .json(strategies.map(strategy => strategy.serialize())
+                    .json(strategies.map(suggestion => suggestion.serialize())
                     );
         })
         .catch(err => {
@@ -62,11 +64,11 @@ strategyRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one strategy by strategy_id
-strategyRouter.get('/:id', (req, res) => {
-    Strategy.findById(req.params.id)
-        .then(strategy => {
-            return res.json(strategy.serialize());
+// retrieve one suggestion by suggestion_id
+suggestionRouter.get('/:id', (req, res) => {
+    suggestion.findById(req.params.id)
+        .then(suggestion => {
+            return res.json(suggestion.serialize());
         })
         .catch(error => {
             console.error(err);
@@ -74,8 +76,8 @@ strategyRouter.get('/:id', (req, res) => {
         });
 });
 
-// update strategy by strategy_id
-strategyRouter.put('/:id', (req, res) => {
+// update suggestion by suggestion_id
+suggestionRouter.put('/:id', (req, res) => {
 
     // check for existence of params.id and body.id and if they match
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
@@ -83,29 +85,29 @@ strategyRouter.put('/:id', (req, res) => {
     }
 
     // create object with updated fields
-    const strategyUpdate = {
-        strategy_type: req.body.strategy_type,
-        strategy_desc: req.body.strategy_desc,
-        strategy_credit: req.body.strategy_credit
+    const suggestionUpdate = {
+        suggestion_type: req.body.suggestion_type,
+        suggestion_desc: req.body.suggestion_desc,
+        suggestion_credit: req.body.suggestion_credit
     };
 
     // validate fields with Joi
-    const validation = Joi.validate(strategyUpdate, StrategyJoiSchema);
+    const validation = Joi.validate(suggestionUpdate, suggestionJoiSchema);
     if (validation.error) {
         return response.status(400).json({error: validation.error});
     }
 
      //  find fields to be updated
     const updated = {};
-    const updateableFields = ['strategy_type', 'strategy_desc', 'strategy_credit'];
+    const updateableFields = ['suggestion_type', 'suggestion_desc', 'suggestion_credit'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
         }
     });
 
-    Strategy.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
-        .then(updatedstrategy => {
+    suggestion.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
+        .then(updatedsuggestion => {
             return res.status(204).end();
         })
         .catch(err =>  {
@@ -114,9 +116,9 @@ strategyRouter.put('/:id', (req, res) => {
         });
 });
 
-//  remove strategy by id
-strategyRouter.delete('/:strategy_id', (req, res) => {
-    return Strategy.findByIdAndRemove(req.params.strategy_id)
+//  remove suggestion by id
+suggestionRouter.delete('/:suggestion_id', (req, res) => {
+    return suggestion.findByIdAndRemove(req.params.suggestion_id)
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();
@@ -127,4 +129,4 @@ strategyRouter.delete('/:strategy_id', (req, res) => {
         });
 });
 
-module.exports = {strategyRouter};
+module.exports = {suggestionRouter};

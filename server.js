@@ -6,13 +6,26 @@ const express = require('express');  // for creating server
 const mongoose = require('mongoose');    // for connecting/communicating to db
 const morgan = require('morgan');  // for logging
 const passport = require('passport');  //for authentication
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');  // for parsing json
+const localStrategy = require('./passport/local'); // for logging in 
+const jwtStrategy = require('./passport/jwt'); // for refreshing tokens
 
 const {PORT, MONGO_DATABASE_URL} = require('./config');
 
 const app = express();
 
 mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
+
+// import modules
+const { deliverableRouter } = require('./routes/deliverable.router');
+const { schooltermRouter } = require('./routes/schoolterm.router');
+const { suggestionRouter } = require('./routes/suggestion.router');
+const { termclassRouter } = require('./routes/termclass.router');
+const { userRouter } = require('./routes/user.router');
+const { weekRouter } = require('./routes/week.router');
+const { authRouter } = require('./routes/auth.router');
+
+
 
 // use middleware
 app.use(morgan('common'));
@@ -23,24 +36,14 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 
 
-
-// import modules
-const { deliverableRouter } = require('./routes/deliverable.router');
-const { schooltermRouter } = require('./routes/schoolterm.router');
-const { strategyRouter } = require('./routes/strategy.router');
-const { termclassRouter } = require('./routes/termclass.router');
-const { userRouter } = require('./routes/user.router');
-const { weekRouter } = require('./routes/week.router');
-const { authRouter } = require('./routes/auth.router');
-
-
 // public routers
 app.use('/api/user', userRouter);
+app.use('/api/auth', authRouter);
 
 // protected routers
 app.use('/api/deliverable', deliverableRouter);
 app.use('/api/schoolterm', schooltermRouter);
-app.use('/api/strategy', strategyRouter); 
+app.use('/api/suggestion', suggestionRouter); 
 app.use('/api/termclass', termclassRouter); 
 app.use('/api/week', weekRouter);
 

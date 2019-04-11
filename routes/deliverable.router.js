@@ -2,11 +2,14 @@
 
 const express = require('express');
 const Joi = require('joi');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.deliverable');
+
+const {jwtAuth} = require('../passport/jwt');
 const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
 
 const deliverableRouter = express.Router();
+deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 
 // add a new deliverable
@@ -40,9 +43,9 @@ deliverableRouter.post('/', (req, res) => {
         })
         .catch(err => {
             console.error(err);
-            res.status(500).json({ error: 'Something went wrong!'})
-        })
-    });
+            return res.status(500).json({ error: 'Something went wrong!'})
+        });
+});
 
 
 // get all deliverables

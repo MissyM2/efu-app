@@ -2,11 +2,12 @@
 
 const express = require('express');
 const Joi = require('joi');
+const passport = require('passport');
 
-//const { jwtPassportMiddleware } = require('../auth/auth.schoolterm');
 const {Schoolterm, SchooltermJoiSchema} = require('../models/schoolterm.model');
 
 const schooltermRouter = express.Router();
+schooltermRouter.use("/", passport.authenticate('jwt', { session: false }));
 
 // add a new schoolterm
 schooltermRouter.post('/', (req, res) => {
