@@ -14,7 +14,7 @@ suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 suggestionRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['suggestion_type', 'suggestion_desc'];
+    const reqFields = ['type', 'desc'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
             if(!(field in req.body)) {
@@ -26,9 +26,9 @@ suggestionRouter.post('/', (req, res) => {
 
     // create object with request items
     const newsuggestion = {
-        suggestion_type: req.body.suggestion_type,
-        suggestion_desc: req.body.suggestion_desc,
-        suggestion_credit: req.body.suggestion_credit
+        type: req.body.type,
+        desc: req.body.desc,
+        credit: req.body.credit
     };
 
     // validation
@@ -52,7 +52,7 @@ suggestionRouter.post('/', (req, res) => {
 // get all strategies
 suggestionRouter.get('/', (req, res) => {
     suggestion.find()
-        .sort({ suggestion_type: -1} )
+        .sort({ type: -1} )
         .then( strategies => {
                 return res.status(200)
                     .json(strategies.map(suggestion => suggestion.serialize())
@@ -64,7 +64,7 @@ suggestionRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one suggestion by suggestion_id
+// retrieve one suggestion by id
 suggestionRouter.get('/:id', (req, res) => {
     suggestion.findById(req.params.id)
         .then(suggestion => {
@@ -76,7 +76,7 @@ suggestionRouter.get('/:id', (req, res) => {
         });
 });
 
-// update suggestion by suggestion_id
+// update suggestion by id
 suggestionRouter.put('/:id', (req, res) => {
 
     // check for existence of params.id and body.id and if they match
@@ -86,9 +86,9 @@ suggestionRouter.put('/:id', (req, res) => {
 
     // create object with updated fields
     const suggestionUpdate = {
-        suggestion_type: req.body.suggestion_type,
-        suggestion_desc: req.body.suggestion_desc,
-        suggestion_credit: req.body.suggestion_credit
+        type: req.body.type,
+        desc: req.body.desc,
+        credit: req.body.credit
     };
 
     // validate fields with Joi
@@ -99,7 +99,7 @@ suggestionRouter.put('/:id', (req, res) => {
 
      //  find fields to be updated
     const updated = {};
-    const updateableFields = ['suggestion_type', 'suggestion_desc', 'suggestion_credit'];
+    const updateableFields = ['type', 'desc', 'credit'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
@@ -117,8 +117,8 @@ suggestionRouter.put('/:id', (req, res) => {
 });
 
 //  remove suggestion by id
-suggestionRouter.delete('/:suggestion_id', (req, res) => {
-    return suggestion.findByIdAndRemove(req.params.suggestion_id)
+suggestionRouter.delete('/:id', (req, res) => {
+    return suggestion.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();

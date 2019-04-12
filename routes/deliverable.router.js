@@ -16,7 +16,7 @@ deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 deliverableRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['deliverable_pressure', 'deliverable_name', 'deliverable_prephrs'];
+    const reqFields = ['pressure', 'name', 'prephrs'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
@@ -24,10 +24,10 @@ deliverableRouter.post('/', (req, res) => {
 
     // create object with request items
     const newDeliverable = {
-            deliverable_pressure: req.body.deliverable_pressure,
-            deliverable_name: req.body.deliverable_name,
-            deliverable_desc: req.body.deliverable_desc,
-            deliverable_prephrs: req.body.deliverable_prephrs
+            pressure: req.body.pressure,
+            name: req.body.name,
+            desc: req.body.desc,
+            prephrs: req.body.prephrs
     };
 
     // validation
@@ -51,7 +51,7 @@ deliverableRouter.post('/', (req, res) => {
 // get all deliverables
 deliverableRouter.get('/', (req, res) => {
     Deliverable.find()
-        .sort({ deliverable_type: -1} )
+        .sort({ type: -1} )
         .then( deliverables => {
             return res.status(200)
                 .json(deliverables.map(deliverable => deliverable.serialize())
@@ -63,10 +63,10 @@ deliverableRouter.get('/', (req, res) => {
         });
 });
 
-// retrieve one deliverable by deliverable_type
-deliverableRouter.get('/:deliverable_pressure', (req, res) => {
-    console.log(req.params.deliverable_pressure);
-    Deliverable.find({"deliverable_pressure": req.params.deliverable_pressure})
+// retrieve one deliverable by type
+deliverableRouter.get('/:pressure', (req, res) => {
+    console.log(req.params.pressure);
+    Deliverable.find({"pressure": req.params.pressure})
         .then(deliverables => {
             return res.json(deliverables.map(deliverable => deliverable.serialize()));
         })
@@ -86,10 +86,10 @@ deliverableRouter.put('/:id', (req, res) => {
 
     // create object with updated fields
     const deliverableUpdate = {
-        deliverable_pressure: req.body.deliverable_pressure,
-        deliverable_name: req.body.deliverable_name,
-        deliverable_desc: req.body.deliverable_desc,
-        deliverable_prephrs: req.body.deliverable_prephrs
+        pressure: req.body.pressure,
+        name: req.body.name,
+        desc: req.body.desc,
+        prephrs: req.body.prephrs
     };
 
     // validate fields with Joi
@@ -100,7 +100,7 @@ deliverableRouter.put('/:id', (req, res) => {
 
     //  find fields to be updated
     const updated = {};
-    const updateableFields = ['deliverable_pressure', 'deliverable_name', 'deliverable_desc', 'deliverable_prephrs'];
+    const updateableFields = ['pressure', 'name', 'desc', 'prephrs'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];

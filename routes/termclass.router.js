@@ -13,7 +13,7 @@ termclassRouter.use("/", passport.authenticate('jwt', { session: false }));
 termclassRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['termclass_name', 'termclass_num'];
+    const reqFields = ['name', 'num'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
@@ -21,9 +21,9 @@ termclassRouter.post('/', (req, res) => {
 
     // create object with request items
     const newTermclass = {
-        termclass_name: req.body.termclass_name,
-        termclass_num: req.body.termclass_num,
-        termclass_desc: req.body.termclass_desc
+        name: req.body.name,
+        num: req.body.num,
+        desc: req.body.desc
     };
 
     // validation
@@ -48,7 +48,7 @@ termclassRouter.post('/', (req, res) => {
 // get all termclasses
 termclassRouter.get('/', (req, res) => {
     Termclass.find()
-        .sort({ termclass_name: -1} )
+        .sort({ name: -1} )
         .then( termclass => {
             return res.json(termclass);
         })
@@ -80,9 +80,9 @@ termclassRouter.put('/:id', (req, res) => {
 
     // create object with updated fields
     const termclassUpdate = {
-        termclass_name: req.body.termclass_name,
-        termclass_num: req.body.termclass_num,
-        termclass_desc: req.body.termclass_desc
+        name: req.body.name,
+        num: req.body.num,
+        desc: req.body.desc
     };
 
     // validate fields with Joi
@@ -93,7 +93,7 @@ termclassRouter.put('/:id', (req, res) => {
 
     //  find fields to be updated
     const updated = {};
-    const updateableFields = ['termclass_name', 'termclass_num', 'termclass_desc'];
+    const updateableFields = ['name', 'num', 'desc'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];

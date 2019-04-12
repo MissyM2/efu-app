@@ -3,14 +3,17 @@ const { Strategy: LocalStrategy } = require('passport-local');
 
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
-const { User } = require('../routes/user.router');
+const { User } = require('../models/user.model');
 const { JWT_SECRET } = require('../config');
 
-const localStrategy = new LocalStrategy((user_loginidemail, user_password, callback) => {
+const localStrategy = new LocalStrategy((username, password, callback) => {
   let user;
-  User.findOne({ user_loginidemail: user_loginidemail })
+  console.log(username);
+  console.log(User);
+  User.findOne({username: username})
     .then(_user => {
       user = _user;
+      console.log(user);
       if (!user) {
         // Return a rejected promise so we break out of the chain of .thens.
         // Any errors like this will be handled in the catch block.
@@ -19,7 +22,7 @@ const localStrategy = new LocalStrategy((user_loginidemail, user_password, callb
           message: 'Incorrect username or password'
         });
       }
-      return user.validatePassword(user_password);
+      return user.validatePassword(password);
     })
     .then(isValid => {
       if (!isValid) {

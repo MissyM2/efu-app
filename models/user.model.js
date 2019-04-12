@@ -4,19 +4,19 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose'); 
 
 const userSchema = new mongoose.Schema({
-    user_fname: { 
+    firstname: { 
         type: String, 
         default: '' 
     },
-    user_lname: { 
+    lastname: { 
         type: String, 
         default: ''
     },
-    user_loginidemail: { 
+    username: { 
         type: String, 
         required: true, 
         unique: true },
-    user_password: {
+    password: {
         type: String,
         required: true
     }
@@ -24,18 +24,18 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.serialize = function() {
     return {
-        user_fname: this.user_fname || '',
-        user_lname: this.user_lname || '',
-        user_loginidemail: this.user_loginidemail || ''
+        firstname: this.firstname || '',
+        lastname: this.lastname || '',
+        username: this.username || ''
     };
 };
 
-userSchema.methods.validatePassword = function(user_password) {
-    return bcrypt.compare(user_password, this.user_password);
+userSchema.methods.validatePassword = function(password) {
+    return bcrypt.compare(password, this.password);
 };
 
-userSchema.statics.hashPassword = function(user_password) {
-    return bcrypt.hash(user_password, 10);
+userSchema.statics.hashPassword = function(password) {
+    return bcrypt.hash(password, 10);
 };
 
 const User = mongoose.model('User', userSchema);

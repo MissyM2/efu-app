@@ -4,24 +4,24 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const schooltermSchema = new mongoose.Schema({
-    schoolterm_institution: { type: String, required: true },
-    schoolterm_level: { type: String, required: true },
-    schoolterm_desc: { type:String }
+    institution: { type: String, required: true },
+    level: { type: String, required: true },
+    desc: { type:String }
 });
 
 schooltermSchema.methods.serialize = function() {
     return {
         id: this._id,
-        schoolterm_institution: this.schoolterm_institution,
-        schoolterm_level: this.schoolterm_level,
-        schoolterm_desc: this.schoolterm_desc,
+        institution: this.institution,
+        level: this.level,
+        desc: this.desc,
     };
 };
 
 const SchooltermJoiSchema = Joi.object().keys({
-    schoolterm_institution: Joi.string().required(),
-    schoolterm_level: Joi.string().required(),
-    schoolterm_desc: Joi.string().required(),
+    institution: Joi.string().required(),
+    level: Joi.string().required(),
+    desc: Joi.string().required(),
 
 })
 

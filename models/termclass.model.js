@@ -4,25 +4,25 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const termclassSchema = new mongoose.Schema({
-    termclass_name: { type: String, required: true },
-    termclass_num: { type: String, required: true },
-    termclass_desc: { type:String }
+    name: { type: String, required: true },
+    num: { type: String, required: true },
+    desc: { type:String }
     //user:
 });
 
 termclassSchema.methods.serialize = function() {
     return {
         id: this._id,
-        termclass_name: this.termclass_name,
-        termclass_num: this.termclass_num,
-        termclass_desc: this.termclass_desc,
+        name: this.name,
+        num: this.num,
+        desc: this.desc,
     };
 };
 
 const TermclassJoiSchema = Joi.object().keys({
-        termclass_name: Joi.string().required(),
-        termclass_num: Joi.string().required(),
-        termclass_desc: Joi.string()
+        name: Joi.string().required(),
+        num: Joi.string().required(),
+        desc: Joi.string()
 });
 
 const Termclass = mongoose.model('Termclass', termclassSchema);

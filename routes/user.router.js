@@ -13,7 +13,7 @@ const jsonParser = bodyParser.json();
 userRouter.post('/', jsonParser, (req, res) => {
 
      // check that all req fields are present 
-     const reqFields = ['user_loginidemail', 'user_password'];
+     const reqFields = ['username', 'password'];
      const missingField = reqFields.find(field => !(field in req.body));
      if (missingField) {
          return res.status(422).json({
@@ -24,7 +24,7 @@ userRouter.post('/', jsonParser, (req, res) => {
             });
      }
 
-     const stringFields = ['user_loginidemail', 'user_password', 'user_fname', 'user_lname'];
+     const stringFields = ['username', 'password', 'firstname', 'lastname'];
      const nonStringField = stringFields.find(
          field => field in req.body && typeof req.body[field] != 'string'
      );
@@ -37,7 +37,7 @@ userRouter.post('/', jsonParser, (req, res) => {
         }); 
      }
 
-     const explicitlyTrimmedFields = ['user_loginidemail', 'user_password'];
+     const explicitlyTrimmedFields = ['username', 'password'];
      const nonTrimmedField = explicitlyTrimmedFields.find(
          field => req.body[field].trim() !== req.body[field]
      );
@@ -51,10 +51,10 @@ userRouter.post('/', jsonParser, (req, res) => {
      }
 
     const sizedFields = {
-        user_loginidemail: {
+        username: {
             min: 1
         },
-        user_password: {
+        password: {
             min: 7,
             max: 20
         }
@@ -80,12 +80,12 @@ userRouter.post('/', jsonParser, (req, res) => {
         });
     }
 
-    let {user_loginidemail, user_password, user_fname = '', user_lname = ''} = req.body;
-    user_fname = user_fname.trim();
-    user_lname = user_lname.trim();
+    let {username, password, firstname = '', lastname = ''} = req.body;
+    firstname = firstname.trim();
+    lastname = lastname.trim();
 
     // does the user already exist?
-    return User.find({user_loginidemail})
+    return User.find({username})
         .count()
         .then(count => {
             if (count > 0) {
@@ -93,21 +93,21 @@ userRouter.post('/', jsonParser, (req, res) => {
                     code: 422,
                     reason: 'ValidationError',
                     message: 'Username already taken',
-                    location: 'user_loginidemail'
+                    location: 'username'
                 });
             }
-            return User.hashPassword(user_password);
+            return User.hashPassword(password);
         })
         .then(hash => {
             return User.create({
-                user_loginidemail,
-                user_password: hash,
-                user_fname,
-                user_lname
+                username,
+                password: hash,
+                firstname,
+                lastname
             });
         })
         .then(user => {
-            return res.status(201).json(user.serialize());
+            return res.status(201).send(user);
         })
         .catch(err => {
             // forward any validation errors to client, otherwise, status: 500

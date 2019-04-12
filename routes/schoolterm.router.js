@@ -13,7 +13,7 @@ schooltermRouter.use("/", passport.authenticate('jwt', { session: false }));
 schooltermRouter.post('/', (req, res) => {
     
     // check that all req fields are in body
-    const reqFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
+    const reqFields = ['institution', 'level', 'desc'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
             if(!(field in req.body)) {
@@ -24,9 +24,9 @@ schooltermRouter.post('/', (req, res) => {
     };
 
     const newSchoolterm = {
-        schoolterm_institution: req.body.schoolterm_institution,
-        schoolterm_level: req.body.schoolterm_level,
-        schoolterm_desc: req.body.schoolterm_desc
+        institution: req.body.institution,
+        level: req.body.level,
+        desc: req.body.desc
     }
 
     const validation = Joi.validate(newSchoolterm, SchooltermJoiSchema);
@@ -49,7 +49,7 @@ schooltermRouter.post('/', (req, res) => {
 // get all schoolterms
 schooltermRouter.get('/', (req, res) => {
     Schoolterm.find()
-        .sort({ schoolterm_institution: -1} )
+        .sort({ institution: -1} )
         .then(schoolterms => {
             console.log(schoolterms);
             return res.status(200)
@@ -83,9 +83,9 @@ schooltermRouter.put('/:id', (req, res) => {
     }
 
     const schooltermUpdate = {
-        schoolterm_institution: req.body.schoolterm_institution,
-        schoolterm_level: req.body.schoolterm_level,
-        schoolterm_desc: req.body.schoolterm_desc
+        institution: req.body.institution,
+        level: req.body.level,
+        desc: req.body.desc
     }
 
     const validation = Joi.validate(schooltermUpdate, SchooltermJoiSchema);
@@ -95,7 +95,7 @@ schooltermRouter.put('/:id', (req, res) => {
 
     // determine fields to be updated
     const updated = {};
-    const updateableFields = ['schoolterm_institution', 'schoolterm_level', 'schoolterm_desc'];
+    const updateableFields = ['institution', 'level', 'desc'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
@@ -112,8 +112,8 @@ schooltermRouter.put('/:id', (req, res) => {
 });
 
 //  remove schoolterm by id
-schooltermRouter.delete('/:schoolterm_id', (req, res) => {
-    return Schoolterm.findByIdAndRemove(req.params.schoolterm_id)
+schooltermRouter.delete('/:id', (req, res) => {
+    return Schoolterm.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
             return res.status(204).end();

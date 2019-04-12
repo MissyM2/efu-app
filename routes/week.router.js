@@ -13,7 +13,7 @@ weekRouter.use('/', passport.authenticate('jwt', { session: false }));
 weekRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['week_num', 'week_enddate'];
+    const reqFields = ['num', 'enddate'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
@@ -21,8 +21,8 @@ weekRouter.post('/', (req, res) => {
 
     // create object with request items
     const newWeek = {
-        week_num: req.body.week_num,
-        week_enddate: req.body.week_enddate
+        num: req.body.num,
+        enddate: req.body.enddate
     };
 
     // validation
@@ -48,7 +48,7 @@ weekRouter.post('/', (req, res) => {
 weekRouter.get('/', (req, res) => {
     console.log('at the get');
     Week.find()
-        .sort({ week_num: -1} )
+        .sort({ num: -1} )
         .then( weeks => {
             return res.json(weeks);
         })
@@ -59,9 +59,9 @@ weekRouter.get('/', (req, res) => {
 });
 
 // retrieve one week by id
-weekRouter.get('/:week_num', (req, res) => {
-    console.log(req.params.week_num);
-    Week.find({"week_num": req.params.week_num})
+weekRouter.get('/:num', (req, res) => {
+    console.log(req.params.num);
+    Week.find({"num": req.params.num})
         .then(weeks => {
             return res.json(weeks.map(week=>week.serialize()));
         })
@@ -72,16 +72,16 @@ weekRouter.get('/:week_num', (req, res) => {
 });
 
 // update week by id
-weekRouter.put('/:week_num', (req, res) => {
+weekRouter.put('/:num', (req, res) => {
 
      // check for existence of params.id and body.id and if they match
-    if (!(req.params.week_num && req.body.week_num && req.params.week_num === req.body.week_num)) {
-        return res.status(400).json({ error: 'Request path week_num and request body week_num values must match' });
+    if (!(req.params.num && req.body.num && req.params.num === req.body.num)) {
+        return res.status(400).json({ error: 'Request path num and request body num values must match' });
     }
 
     // create object with updated fields
     const WeekUpdate = {
-        week_enddate: req.body.week_enddate
+        enddate: req.body.enddate
     };
 
     // validate fields with Joi
@@ -92,14 +92,14 @@ weekRouter.put('/:week_num', (req, res) => {
 
     //  find fields to be updated
     const updated = {};
-    const updateableFields = ['week_num','week_enddate'];
+    const updateableFields = ['num','enddate'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
         }
     });
 
-    Week.findOneAndUpdate({"week_num":req.params.id}, {$set: updated}, {new: true})
+    Week.findOneAndUpdate({"num":req.params.id}, {$set: updated}, {new: true})
         .then((updatedWeek) => {
             return res.status(200).json(updatedWeek.serialize());
         })
@@ -109,9 +109,9 @@ weekRouter.put('/:week_num', (req, res) => {
         });
 });
 
-//  remove week by week_num
-weekRouter.delete('/:week_num', (req, res) => {
-    return Week.deleteOne({"week_num": req.params.week_num})
+//  remove week by num
+weekRouter.delete('/:num', (req, res) => {
+    return Week.deleteOne({"num": req.params.num})
         .then(() => {
             console.log('deleting entry...');
             return res.status(200).json({success: 'week has been removed'});
