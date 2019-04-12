@@ -5,7 +5,7 @@ const Joi = require('joi');
 
 
 const suggestionSchema = new mongoose.Schema({
-    type: { type: String, required: true },
+    category: { type: String, required: true },
     desc: { type: String, required: true },
     credit: { type: String }
 });
@@ -13,14 +13,14 @@ const suggestionSchema = new mongoose.Schema({
 suggestionSchema.methods.serialize = function() {
     return {
         id: this._id,
-        type: this.type,
+        category: this.category,
         desc: this.desc,
         credit: this.credit
     };
 };
 
 const SuggestionJoiSchema = Joi.object().keys({
-    type: Joi.string().required(),
+    category: Joi.string().required(),
     desc: Joi.string().required(),
     credit: Joi.string().optional()
 });

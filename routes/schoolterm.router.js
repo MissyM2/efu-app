@@ -116,7 +116,7 @@ schooltermRouter.delete('/:id', (req, res) => {
     return Schoolterm.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
-            return res.status(204).end();
+            return res.status(200).json({success: 'schoolterm has been removed'});
         })
         .catch(err => {
             return res.status(500).json(err);

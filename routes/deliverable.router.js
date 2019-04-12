@@ -3,7 +3,7 @@
 const express = require('express');
 const Joi = require('joi');
 const passport = require('passport');
-
+const {User} = require('../models/user.model');
 
 const {jwtAuth} = require('../auth/auth.strategies');
 const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
@@ -24,6 +24,7 @@ deliverableRouter.post('/', (req, res) => {
 
     // create object with request items
     const newDeliverable = {
+            user: req.user.id,
             pressure: req.body.pressure,
             name: req.body.name,
             desc: req.body.desc,
@@ -36,14 +37,34 @@ deliverableRouter.post('/', (req, res) => {
         return Response.status(400).json({error: validation.error});
     }
 
-    // create the new deliverable
-    Deliverable.create(newDeliverable)
-        .then(deliverable => {
-            return res.status(201).json(deliverable.serialize());
+    //retrieve all info on the user and save in user on 42
+    User.findOne({username: req.user.username})
+        .then(user => {
+
+            //retrieve corresponding object id
+            newDeliverable.user = user._id;
+            Deliverable.create(newDeliverable)
+                // all info of the deliverable plus the object id of the selected user
+                .then(deliverable => {
+                    return res.status(201).json(deliverable.serialize(user));
+                })
+                .catch(err => {
+                    console.error(err);
+                    return res.status(500).json({ error: 'Something went wrong!'})
+                });
         })
-        .catch(err => {
+        .catch (err => {
             console.error(err);
             return res.status(500).json({ error: 'Something went wrong!'})
+        });
+});
+
+// get all deliverables for selected user
+deliverableRouter.get('/:id', (req, res) => {
+    Deliverable.find({ user: req.user.id})
+        .populate('user')
+        .then(items => {
+            return response.status(200).json(items.map(item => items.serialize()))
         });
 });
 
@@ -110,7 +131,7 @@ deliverableRouter.put('/:id', (req, res) => {
     // find the deliverable and update it
     Deliverable.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updateddeliverable => {
-            return res.status(204).end();
+            return res.status(200).json(updateddeliverable.serialize());
         })
         .catch(err =>  {
             console.error(err);
@@ -123,7 +144,7 @@ deliverableRouter.delete('/:id', (req, res) => {
     return Deliverable.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
-            return res.status(204).end();
+            res.status(200).json({success: 'deliverable has been removed'});
         })
         .catch(error => {
             console.error(err);

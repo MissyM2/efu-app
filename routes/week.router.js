@@ -74,13 +74,13 @@ weekRouter.get('/:num', (req, res) => {
 // update week by id
 weekRouter.put('/:num', (req, res) => {
 
-     // check for existence of params.id and body.id and if they match
+     // check for existence of params.num and body.num and if they match
     if (!(req.params.num && req.body.num && req.params.num === req.body.num)) {
         return res.status(400).json({ error: 'Request path num and request body num values must match' });
     }
 
     // create object with updated fields
-    const WeekUpdate = {
+    const weekUpdate = {
         enddate: req.body.enddate
     };
 
@@ -99,9 +99,9 @@ weekRouter.put('/:num', (req, res) => {
         }
     });
 
-    Week.findOneAndUpdate({"num":req.params.id}, {$set: updated}, {new: true})
-        .then((updatedWeek) => {
-            return res.status(200).json(updatedWeek.serialize());
+    Week.findOneAndUpdate({"num":req.params.num}, {$set: updated}, {new: true})
+        .then(updatedweek => {
+            return res.status(200).json(updatedweek.serialize());
         })
         .catch(err =>  {
             console.error(err);

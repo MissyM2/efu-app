@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.serialize = function() {
     return {
+        id: this.id,
         firstname: this.firstname || '',
         lastname: this.lastname || '',
         username: this.username || ''

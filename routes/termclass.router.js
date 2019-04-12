@@ -103,7 +103,7 @@ termclassRouter.put('/:id', (req, res) => {
      // find the termclass and update it
     Termclass.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updatedtermclass => {
-            return res.status(204).end();
+            return res.status(200).json(updatedtermclass.serialize());
         })
         .catch(err =>  {
             console.error(err);
@@ -116,7 +116,7 @@ termclassRouter.delete('/:id', (req, res) => {
     return Termclass.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
-            return res.status(204).end();
+            return res.status(200).json({success: 'termclass has been removed'})
         })
         .catch(error => {
             console.error(err);

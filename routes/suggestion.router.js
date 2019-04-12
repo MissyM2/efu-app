@@ -4,7 +4,7 @@ const express = require('express');
 const Joi = require('joi');
 const passport = require('passport');
 
-const {suggestion, suggestionJoiSchema} = require('../models/suggestion.model');
+const {Suggestion, suggestionJoiSchema} = require('../models/suggestion.model');
 
 const suggestionRouter = express.Router();
 suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
@@ -14,7 +14,7 @@ suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 suggestionRouter.post('/', (req, res) => {
 
     // check that all req fields are in body
-    const reqFields = ['type', 'desc'];
+    const reqFields = ['category', 'desc'];
     for (let i=0; i <reqFields.length; i++) {
         const field = reqFields[i];
             if(!(field in req.body)) {
@@ -25,20 +25,20 @@ suggestionRouter.post('/', (req, res) => {
     }
 
     // create object with request items
-    const newsuggestion = {
-        type: req.body.type,
+    const newSuggestion = {
+        category: req.body.category,
         desc: req.body.desc,
         credit: req.body.credit
     };
 
     // validation
-    const validation = Joi.validate(newsuggestion, suggestionJoiSchema);
+    const validation = Joi.validate(newSuggestion, suggestionJoiSchema);
     if (validation.error){
         return Response.status(400).json({error: validation.error});
     }
 
     // create new suggestion
-    suggestion.create(newsuggestion)
+    Suggestion.create(newSuggestion)
         .then(suggestion => {
             return res.status(201).json(suggestion.serialize());
         })
@@ -51,8 +51,8 @@ suggestionRouter.post('/', (req, res) => {
 
 // get all strategies
 suggestionRouter.get('/', (req, res) => {
-    suggestion.find()
-        .sort({ type: -1} )
+    Suggestion.find()
+        .sort({ category: -1} )
         .then( strategies => {
                 return res.status(200)
                     .json(strategies.map(suggestion => suggestion.serialize())
@@ -66,7 +66,7 @@ suggestionRouter.get('/', (req, res) => {
 
 // retrieve one suggestion by id
 suggestionRouter.get('/:id', (req, res) => {
-    suggestion.findById(req.params.id)
+    Suggestion.findById(req.params.id)
         .then(suggestion => {
             return res.json(suggestion.serialize());
         })
@@ -86,7 +86,7 @@ suggestionRouter.put('/:id', (req, res) => {
 
     // create object with updated fields
     const suggestionUpdate = {
-        type: req.body.type,
+        category: req.body.category,
         desc: req.body.desc,
         credit: req.body.credit
     };
@@ -99,16 +99,16 @@ suggestionRouter.put('/:id', (req, res) => {
 
      //  find fields to be updated
     const updated = {};
-    const updateableFields = ['type', 'desc', 'credit'];
+    const updateableFields = ['category', 'desc', 'credit'];
     updateableFields.forEach(field => {
         if(field in req.body) {
             updated[field] = req.body[field];
         }
     });
 
-    suggestion.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
+    Suggestion.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updatedsuggestion => {
-            return res.status(204).end();
+            return res.status(200).json(updatedsuggestion.serialize());
         })
         .catch(err =>  {
             console.error(err);
@@ -118,10 +118,10 @@ suggestionRouter.put('/:id', (req, res) => {
 
 //  remove suggestion by id
 suggestionRouter.delete('/:id', (req, res) => {
-    return suggestion.findByIdAndRemove(req.params.id)
+    return Suggestion.findByIdAndRemove(req.params.id)
         .then(() => {
             console.log('deleting entry...');
-            return res.status(204).end();
+            res.status(200).json({success: 'suggestion has been removed'});
         })
         .catch(error => {
             console.error(err);
