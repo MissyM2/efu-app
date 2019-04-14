@@ -2,38 +2,37 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const bodyParser = require('body-parser');
 
 const {JWT_SECRET, JWT_EXPIRY} = require('../config');
-const authRouter = express.Router();
+const {localAuth, jwtAuth} = require('./auth.strategies');
 
-const createAuthToken = function(user) {
-    console.log(user);
-    return jwt.sign({user}, JWT_SECRET, {
-        subject: user.username,
+const authRouter = express.Router();
+/*
+function createAuthToken(student) {
+    return jwt.sign({student}, JWT_SECRET, {
+        subject: student.studentname,
         expiresIn: JWT_EXPIRY,
         algorithm: 'HS256'
     });
 };
-
-// authenticate user: the user provides a username and password to login
-const localAuth = passport.authenticate('local', {session: false});
-authRouter.use(bodyParser.json());
-authRouter.post('/login', localAuth, function(req, res) {
-    console.log('hello, missy');
-    const user = req.user.serialize();
-    console.log(user);
-    const authToken = createAuthToken(user);
-    return res.json({authToken});
+*/
+console.log(localAuth);
+// authenticate student: the student provides a studentname and password to login
+authRouter.post('/login', localAuth, (req, res) => {
+    console.log('after authRouter');
+    console.log(req.body);
+    //const student = req.student.serialize();
+    //const authToken = createAuthToken(student);
+    //return res.json({authToken, student});
+    return res.json({message: 'made it past post!'});
 });
 
-// refresh token: the user exchanges a valid JWT for a new one with a later expiration date
-const jwtAuth = passport.authenticate('jwt', {session: false});
+// refresh token: the student exchanges a valid JWT for a new one with a later expiration date
+/*
 authRouter.post('/refresh', jwtAuth, function(req, res) {
-    const user = req.user.serialize();
-    const authToken = createAuthToken(user);
+    const student = req.student.serialize();
+    const authToken = createAuthToken(student);
     res.json({authToken});
 });
-
+*/
 module.exports = {authRouter};

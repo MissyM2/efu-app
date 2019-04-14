@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const weekSchema = new mongoose.Schema({
-    num: { type: Number },
+    num: { type: Number, index: {unique: true}},
     enddate: {type: Date, required: true}
 });
 

@@ -3,7 +3,7 @@
 const bcrypt = require('bcryptjs'); 
 const mongoose = require('mongoose'); 
 
-const userSchema = new mongoose.Schema({
+const studentSchema = new mongoose.Schema({
     firstname: { 
         type: String, 
         default: '' 
@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         type: String, 
         default: ''
     },
-    username: { 
+    studentname: { 
         type: String, 
         required: true, 
         unique: true },
@@ -22,23 +22,23 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.methods.serialize = function() {
+studentSchema.methods.serialize = function() {
     return {
         id: this.id,
         firstname: this.firstname || '',
         lastname: this.lastname || '',
-        username: this.username || ''
+        studentname: this.studentname || ''
     };
 };
 
-userSchema.methods.validatePassword = function(password) {
+studentSchema.methods.validatePassword = function(password) {
     return bcrypt.compare(password, this.password);
 };
 
-userSchema.statics.hashPassword = function(password) {
+studentSchema.statics.hashPassword = function(password) {
     return bcrypt.hash(password, 10);
 };
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = {User};
+const Student = mongoose.model('student', studentSchema);
+console.log('before student module export')
+module.exports = {Student};

@@ -3,62 +3,63 @@
 const express = require('express');
 const Joi = require('joi');
 const passport = require('passport');
-//const {User} = require('../models/user.model');
-const {Course} = require('../models/course.model');
+const {User} = require('../models/user.model');
 
 const {jwtAuth} = require('../auth/auth.strategies');
-const {Deliverable} = require('../models/deliverable.model');
+const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
 
 const deliverableRouter = express.Router();
 deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 
 // add a new deliverable
-deliverableRouter.post('/', (req, res) => {
-    console.log('did i make it past the first line?');
+deliverableRouter.post('/:deliverable', (req, res) => {
 
+    // check that all req fields are in body
+    const reqFields = ['pressure', 'name', 'prephrs'];
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({code: 422, reason: 'ValidationError', message: 'Missing field', location: missingField});
+    }
+
+    // create object with request items
     const newDeliverable = {
-            course: req.course.id,
-            deliverable_name: req.body.deliverable_name,
-            //pressure: req.body.pressure,
-            //desc: req.body.desc,
-            //prephrs: req.body.prephrs
+            user: req.user.id,
+            pressure: req.body.pressure,
+            name: req.body.name,
+            desc: req.body.desc,
+            prephrs: req.body.prephrs
     };
-    console.log('this is the new delicerable', newDeliverable);
 
-/*
+    // validation
     const validation = Joi.validate(newDeliverable, DeliverableJoiSchema);
     if (validation.error){
-        return res.status(400).json({error: validation.error});
+        return Response.status(400).json({error: validation.error});
     }
-    */
-   Course.findOne({course_name: req.course.course_name})
-    .then(course => {
-        console.log('course name is ', course_name);
-        newDeliverable.course = course._id;
-        Deliverable.create(newDeliverable)
-        .then(deliverable => {
-            console.log('deliverable is ', deliverable);
-            return res.status(201).json(deliverable.serialize(course));
-        })
-        .catch(err => {
-            console.log(err);
-            return res.status(500).json({ error: 'Something went wrong!'});
-        });
 
-    })
-    .catch(err => {
-        console.error(err);
-        return res.status(500).json({ error: 'somethen else went wrong'});
-    });
-    
+    //retrieve all info on the user and save in user on 42
+    User.findOne({username: req.user.username})
+        .then(user => {
+            newDeliverable.user = user._id;
+            Deliverable.create(newDeliverable)
+                .then(deliverable => {
+                    return res.status(201).json(deliverable.serialize(user));
+                })
+                .catch(err => {
+                    res.status(500).json({ error: 'Something went wrong!'})
+                });
+        })
+        .catch (err => {
+            res.status(500).json({ error: 'Something went wrong!'})
+        });
 });
-/*
+
 // get all deliverables for selected user
-deliverableRouter.get('/:course_name/deliverables', (req, res) => {
-    Course.find({ course_name: req.params.course_name})
-        .then(deliverables => {
-            res.status(200).json(deliverables.map(deliverable => deliverable.serialize()))
+deliverableRouter.get('/:id', (req, res) => {
+    Deliverable.find({ user: req.user.id})
+        .populate('user')
+        .then(items => {
+            return response.status(200).json(items.map(item => item.serialize()))
         });
 });
 
@@ -77,7 +78,7 @@ deliverableRouter.get('/', (req, res) => {
             return res.status(500).json({ error: 'something went wrong!' });
         });
 });
-/*
+
 // retrieve one deliverable by type
 deliverableRouter.get('/:pressure', (req, res) => {
     console.log(req.params.pressure);
@@ -141,6 +142,6 @@ deliverableRouter.delete('/:id', (req, res) => {
         });
 });
 
-*/
+
 
 module.exports = {deliverableRouter};

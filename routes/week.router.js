@@ -31,24 +31,37 @@ weekRouter.post('/', (req, res) => {
         return Response.status(400).json({error: validation.error});
     }
 
-    // create the new week
-    Week
-        .create(newWeek)
-        .then(week => {
-            return res.status(201).json(week.serialize());
+    // check if week already exists
+    Week.find({num:req.body.num})
+        .count()
+        .then(count => {
+            if (count > 0) {
+                return Promise.reject({
+                    code: 422,
+                    reason: 'ValidationError',
+                    message: 'Week number already exists',
+                    location: 'num'
+                });
+            }
         })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ error: 'Something went wrong!'})
-        })
+        .then(() => {
+            return Week.create(newWeek)
+            .then(week => {
+                return res.status(201).json(week.serialize());
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({ error: 'Something went wrong!'})
+            });
     });
+});
 
 
 // get all weeks
 weekRouter.get('/', (req, res) => {
     console.log('at the get');
     Week.find()
-        .sort({ num: -1} )
+        .sort('num')
         .then( weeks => {
             return res.json(weeks);
         })
@@ -109,16 +122,25 @@ weekRouter.put('/:num', (req, res) => {
         });
 });
 
+//  remove week by id
+weekRouter.delete('/:id', (req, res) => {
+    return Week.findByIdAndRemove(req.params.id)
+        .then(() => {
+            res.status(200).json({success: 'week has been removed'});
+        })
+        .catch(() => {
+            res.status(500).json({ error: 'something went wrong!' });
+        });
+});
+
 //  remove week by num
 weekRouter.delete('/:num', (req, res) => {
     return Week.deleteOne({"num": req.params.num})
         .then(() => {
-            console.log('deleting entry...');
-            return res.status(200).json({success: 'week has been removed'});
+            res.status(200).json({success: 'week has been removed'});
         })
-        .catch(error => {
-            console.error(err);
-            return res.status(500).json({ error: 'something went wrong!' });
+        .catch(() => {
+            res.status(500).json({ error: 'something went wrong!' });
         });
 });
 
