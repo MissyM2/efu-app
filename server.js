@@ -18,8 +18,8 @@ mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
 // import modules
 const { deliverableRouter } = require('./routes/deliverable.router');
 const { suggestionRouter } = require('./routes/suggestion.router');
+const { userRouter } = require('./routes/user.router');
 const { courseRouter } = require('./routes/course.router');
-const { studentRouter } = require('./routes/student.router');
 const { weekRouter } = require('./routes/week.router');
 const { authRouter } = require('./auth/auth.router');
 
@@ -44,18 +44,18 @@ app.use(function (req, res, next) {
 
 // authentication
 passport.use(localStrategy);
-//passport.use(jwtStrategy);
+passport.use(jwtStrategy);
 console.log('after passport use in server.js');
 
 // public routers
-app.use('/api/students', studentRouter);
+app.use('/api/users/', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/suggestion', suggestionRouter); 
 
 // protected routers
 //app.use('/api/weeks', weekRouter);
-//app.use('/api/students', courseRouter); 
-//app.use('/api/students', deliverableRouter);
+app.use('/api/courses', courseRouter); 
+app.use('/api/users/deliverables/', deliverableRouter);
 
 
 // in case of an HTTP request that is not hadles by Express server

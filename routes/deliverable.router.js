@@ -1,57 +1,64 @@
 'use strict';
 
 const express = require('express');
-const Joi = require('joi');
 const passport = require('passport');
-//const {User} = require('../models/user.model');
-const {Course} = require('../models/course.model');
+const mongoose = require('mongoose');
 
-const {jwtAuth} = require('../auth/auth.strategies');
-const {Deliverable} = require('../models/deliverable.model');
+const {Course} = require('../models/course.model');
+const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
+const Joi = require('joi');
 
 const deliverableRouter = express.Router();
 deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 
-// add a new deliverable
-deliverableRouter.post('/', (req, res) => {
-    console.log('did i make it past the first line?');
-
+// add a new deliverable for a given course
+deliverableRouter.post('/:courseid', (req, res) => {
     const newDeliverable = {
-            course: req.course.id,
-            deliverable_name: req.body.deliverable_name,
+            course: req.params.courseid,
+            deliverableName: req.body.deliverableName,
             //pressure: req.body.pressure,
             //desc: req.body.desc,
             //prephrs: req.body.prephrs
     };
     console.log('this is the new delicerable', newDeliverable);
+    const reqFields = ['courseid', 'deliverableName'];
+    const missingField = req.Fields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        });
+    }
 
-/*
+
     const validation = Joi.validate(newDeliverable, DeliverableJoiSchema);
     if (validation.error){
         return res.status(400).json({error: validation.error});
     }
-    */
-   Course.findOne({course_name: req.course.course_name})
-    .then(course => {
-        console.log('course name is ', course_name);
-        newDeliverable.course = course._id;
-        Deliverable.create(newDeliverable)
-        .then(deliverable => {
-            console.log('deliverable is ', deliverable);
-            return res.status(201).json(deliverable.serialize(course));
-        })
-        .catch(err => {
-            console.log(err);
-            return res.status(500).json({ error: 'Something went wrong!'});
-        });
 
+   Course.findById(req.body.courseid)
+    .then(course => {
+        if (course) {
+            Deliverable.create(newDeliverable)
+                .then(deliverable => 
+                    res.status(201).json(deliverable.serialize()))
+                .catch(err => {
+                    console.error(err);
+                    return res.status(500).json({error: `${err}`});
+                });
+        } else {
+            const message = `course not found`;
+            console.error(message);
+            return res.status(400).send(message);
+        }
     })
     .catch(err => {
         console.error(err);
-        return res.status(500).json({ error: 'somethen else went wrong'});
-    });
-    
+        return res.status(500).json({ error: `${err}`});
+    }); 
 });
 /*
 // get all deliverables for selected user

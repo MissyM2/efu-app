@@ -2,19 +2,20 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-const {Student} = require('../models/student.model');
+const {User} = require('../models/user.model');
 
-const studentRouter = express.Router();
+const userRouter = express.Router();
 
 const jsonParser = bodyParser.json();
 
-// add a new student
-studentRouter.post('/', jsonParser, (req, res) => {
-    console.log('made it to student post');
+// add a new user
+userRouter.post('/', jsonParser, (req, res) => {
+    console.log('made it to user post');
 
      // check that all req fields are present 
-     const reqFields = ['studentname', 'password'];
+     const reqFields = ['username', 'password'];
      const missingField = reqFields.find(field => !(field in req.body));
      if (missingField) {
          return res.status(422).json({
@@ -25,7 +26,7 @@ studentRouter.post('/', jsonParser, (req, res) => {
             });
      }
 
-     const stringFields = ['studentname', 'password', 'firstname', 'lastname'];
+     const stringFields = ['username', 'password', 'firstname', 'lastname'];
      const nonStringField = stringFields.find(
          field => field in req.body && typeof req.body[field] != 'string'
      );
@@ -38,7 +39,7 @@ studentRouter.post('/', jsonParser, (req, res) => {
         }); 
      }
 
-     const explicitlyTrimmedFields = ['studentname', 'password'];
+     const explicitlyTrimmedFields = ['username', 'password'];
      const nonTrimmedField = explicitlyTrimmedFields.find(
          field => req.body[field].trim() !== req.body[field]
      );
@@ -52,7 +53,7 @@ studentRouter.post('/', jsonParser, (req, res) => {
      }
 
     const sizedFields = {
-        studentname: {
+        username: {
             min: 1
         },
         password: {
@@ -81,34 +82,34 @@ studentRouter.post('/', jsonParser, (req, res) => {
         });
     }
 
-    let {studentname, password, firstname = '', lastname = ''} = req.body;
+    let {username, password, firstname = '', lastname = ''} = req.body;
     firstname = firstname.trim();
     lastname = lastname.trim();
-    console.log('this is student router.  Did I make it past the router?');
-    // does the student already exist?
-    return Student.find({studentname})
+    console.log('this is user router.  Did I make it past the router?');
+    // does the user already exist?
+    return User.find({username})
         .count()
         .then(count => {
             if (count > 0) {
                 return Promise.reject({
                     code: 422,
                     reason: 'ValidationError',
-                    message: 'studentname already taken',
-                    location: 'studentname'
+                    message: 'username already taken',
+                    location: 'username'
                 });
             }
-            return Student.hashPassword(password);
+            return User.hashPassword(password);
         })
         .then(hash => {
-            return Student.create({
-                studentname,
+            return User.create({
+                username,
                 password: hash,
                 firstname,
                 lastname
             });
         })
-        .then(student => {
-            return res.status(201).send(student);
+        .then(user => {
+            return res.status(201).send(user);
         })
         .catch(err => {
             // forward any validation errors to client, otherwise, status: 500
@@ -119,14 +120,17 @@ studentRouter.post('/', jsonParser, (req, res) => {
         });
 });
 
-// get all students
-studentRouter.get('/', (req, res) => {
-    Student.find()
-        .then(students => res.status(200).json(students.map(student => student.serialize())))
-        .catch(err => res.status(500).json({ error: 'something went wrong!' }));
+// get all users
+userRouter.get('/', (req, res) => {
+    User.find()
+        .then(users => res.status(200).json(users.map(user => user.serialize())))
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({ error: 'something went wrong!' });
+        });
 });
 
 
 
 
-module.exports = {studentRouter};
+module.exports = {userRouter};

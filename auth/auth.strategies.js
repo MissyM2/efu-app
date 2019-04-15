@@ -4,38 +4,38 @@ const passport = require('passport');
 
 // import strategies
 const { Strategy: LocalStrategy } = require('passport-local');
-const { JwtStrategy, ExtractJwt } = require('passport-jwt');
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
 // import modules
-const { Student } = require('../models/student.model');
+const { User } = require('../models/user.model');
 const { JWT_SECRET } = require('../config');
 
-const localStrategy = new LocalStrategy((studentname, password, passportVerify) => {
-  //let student;
-  console.log(studentname);
-  /*
-  Student.findOne({studentname: studentname})
-    .then(_student => {
-      student = _student;
-      console.log(student);
-      if (!student) {
+const localStrategy = new LocalStrategy((username, password, passportVerify) => {
+  let user;
+  console.log(username);
+  
+  User.findOne({username: username})
+    .then(_user => {
+      user = _user;
+      console.log(user);
+      if (!user) {
         // Return a rejected promise so we break out of the chain of .thens.
         // Any errors like this will be handled in the catch block.
         return Promise.reject({
           reason: 'LoginError',
-          message: 'Incorrect studentname or password'
+          message: 'Incorrect username or password'
         });
       }
-      return Student.validatePassword(password);
+      return user.validatePassword(password);
     })
     .then(isValid => {
       if (!isValid) {
         return Promise.reject({
           reason: 'LoginError',
-          message: 'Incorrect studentname or password'
+          message: 'Incorrect username or password'
         });
       }
-      return passportVerify(null, student);
+      return passportVerify(null, user);
     })
     .catch(err => {
       if (err.reason === 'LoginError') {
@@ -43,11 +43,9 @@ const localStrategy = new LocalStrategy((studentname, password, passportVerify) 
       }
       return passportVerify(err, false);
     });
-    */
-   return res.json({message: 'made it through localStrategy'});
 });
 
-/*
+
 const jwtStrategy = new JwtStrategy(
   {
     secretOrKey: JWT_SECRET,
@@ -57,14 +55,11 @@ const jwtStrategy = new JwtStrategy(
     algorithms: ['HS256']
   },
   (token, done) => {
-    done(null, token.student);
+    done(null, token.user);
   }
 );
-*/
+
 const localAuth = passport.authenticate('local', {session: false});
-console.log(localAuth);
+const jwtAuth = passport.authenticate('jwt', {session: false});
 
-//const jwtAuth = passport.authenticate('jwt', {session: false});
-
-//module.exports = { localStrategy, jwtStrategy, localAuth, jwtAuth };
-module.exports = { localStrategy, localAuth };
+module.exports = { localStrategy, jwtStrategy, localAuth, jwtAuth };
