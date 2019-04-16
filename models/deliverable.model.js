@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const deliverableSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user'},
     course:{ type: mongoose.Schema.Types.ObjectId, ref: 'course'},
     deliverableName: { type: String, required: true },
     //pressure: { type: String, required: true },

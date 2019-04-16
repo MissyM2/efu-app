@@ -55,7 +55,7 @@ app.use('/api/suggestion', suggestionRouter);
 // protected routers
 //app.use('/api/weeks', weekRouter);
 app.use('/api/courses', courseRouter); 
-app.use('/api/users/deliverables/', deliverableRouter);
+app.use('/api/deliverables', deliverableRouter);
 
 
 // in case of an HTTP request that is not hadles by Express server

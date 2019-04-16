@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const courseSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User"},
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "user"},
     courseName: { 
         type: String, 
         required: true,
@@ -22,18 +22,15 @@ courseSchema.pre('findOne', function(next) {
     next();
 });
 
-courseSchema.virtual('studentName').get(function(){
+courseSchema.virtual('studentFullName').get(function(){
     return `${this.user.firstname} ${this.user.lastname}`.trim();
 })
 
 courseSchema.methods.serialize = function() {
     return {
         id: this._id,
-        //user: User.serialize(),
-        //user: this.studentName,
-        //user: this.user.username,
-        //user: this.user.firstname,
-        //user: `${user.firstname} ${user.lastname}`,
+        studentFullName: this.studentFullName,
+        studentUserName:  this.user.username,
         courseName: this.courseName
     };
 };

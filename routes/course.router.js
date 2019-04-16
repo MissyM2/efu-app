@@ -30,14 +30,11 @@ courseRouter.post('/', (req, res) => {
             location: missingField
         });
     }
-    console.log('passed missing fields');
 
     const validation = Joi.validate(newCourse, CourseJoiSchema);
     if (validation.error){
         return res.status(400).json({error: validation.error});
     }
-
-    console.log('passed validation');
 
     // it is req.user.id because i am getting this from the authentication
     User.findById(req.user.id)
@@ -82,7 +79,13 @@ courseRouter.get('/', (req, res) => {
             .populate('User')
             .then( courses => {
                 console.log(courses);
-                res.status(200).json(courses);
+                //res.status(200).json(courses);
+                res.status(200).json(courses.map(course => course.serialize()));
+                //res.status(200).json(courses.map(course => {
+                //    courseName = course.courseName,
+                 //   userFullName = `${course.user.firstname} ${course.user.lastname}`,
+                 //   userName = course.user.usernname
+                //}));
             })
             .catch(err => {
                 console.log(err);

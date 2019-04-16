@@ -4,6 +4,7 @@ const express = require('express');
 const passport = require('passport');
 const mongoose = require('mongoose');
 
+const {User} = require('../models/user.model');
 const {Course} = require('../models/course.model');
 const {Deliverable, DeliverableJoiSchema} = require('../models/deliverable.model');
 const Joi = require('joi');
@@ -13,17 +14,20 @@ deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 
 // add a new deliverable for a given course
-deliverableRouter.post('/:courseid', (req, res) => {
+deliverableRouter.post('/', (req, res) => {
+    // because the user is already authenticated,
+    // can use req.user.id because user.id is already on 
+    // the req so you don't have to send on the body or params
     const newDeliverable = {
-            course: req.params.courseid,
+            course: req.body.courseid,
             deliverableName: req.body.deliverableName,
             //pressure: req.body.pressure,
             //desc: req.body.desc,
             //prephrs: req.body.prephrs
     };
-    console.log('this is the new delicerable', newDeliverable);
+    console.log('this is the new deliverable', newDeliverable);
     const reqFields = ['courseid', 'deliverableName'];
-    const missingField = req.Fields.find(field => !(field in req.body));
+    const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
             code: 422,
@@ -32,41 +36,64 @@ deliverableRouter.post('/:courseid', (req, res) => {
             location: missingField
         });
     }
-
-
     const validation = Joi.validate(newDeliverable, DeliverableJoiSchema);
     if (validation.error){
         return res.status(400).json({error: validation.error});
     }
-
-   Course.findById(req.body.courseid)
-    .then(course => {
-        if (course) {
-            Deliverable.create(newDeliverable)
-                .then(deliverable => 
-                    res.status(201).json(deliverable.serialize()))
-                .catch(err => {
-                    console.error(err);
-                    return res.status(500).json({error: `${err}`});
-                });
-        } else {
-            const message = `course not found`;
-            console.error(message);
-            return res.status(400).send(message);
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        return res.status(500).json({ error: `${err}`});
-    }); 
+    User.findById(req.user.id)
+        .then(user => {
+            if (user) {
+                newDeliverable.user = user._id;
+                console.log(newDeliverable);
+                Deliverable.create(newDeliverable)
+                    .then(deliverable => {
+                        console.log('user is ', req.user);
+                        console.log('deliverable is ', deliverable);
+                        return res.status(201).json({
+                            id: deliverable._id,
+                            user: `${user.firstname} ${user.lastname}`,
+                            course: deliverable.course,
+                            deliverableName: deliverable.deliverableName
+                        })
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        return res.status(500).json({error: `${err}`});
+                    });
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: `${err}`});
+        });   
 });
-/*
+
 // get all deliverables for selected user
-deliverableRouter.get('/:course_name/deliverables', (req, res) => {
-    Course.find({ course_name: req.params.course_name})
-        .then(deliverables => {
-            res.status(200).json(deliverables.map(deliverable => deliverable.serialize()))
-        });
+deliverableRouter.get('/', (req, res) => {
+    console.log(req.user.id);
+    User.findById(req.user.id)
+        .then (user => {
+            console.log(user);
+            Deliverable.findById({
+                    user: user._id,
+                    courseid: req.body.courseid
+                })
+                .populate('User')
+                .populate('Course')
+                .then(deliverables => {
+                    console.log(deliverables);
+                    res.status(200).json(deliverables.map(
+                        deliverable => deliverable.serialize()));
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.status(500).json({ error: `${err}`});
+                });
+        })
 });
 
 
