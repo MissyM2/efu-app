@@ -1,13 +1,11 @@
 'use strict';
 
 const express = require('express');
+const Joi = require('joi');
 const passport = require('passport');
-const mongoose = require('mongoose');
 
 const {User} = require('../models/user.model');
 const {Course, CourseJoiSchema} = require('../models/course.model');
-
-const Joi = require('joi');
 
 const courseRouter = express.Router();
 courseRouter.use("/", passport.authenticate('jwt', { session: false }));  //this is where we are getting the user.id
@@ -15,12 +13,6 @@ courseRouter.use("/", passport.authenticate('jwt', { session: false }));  //this
 
 // add a new course for a given user
 courseRouter.post('/', (req, res) => {
-    // because the user is already authenticated,
-    //  can use req.user.id because user.id is already on the req so you don't have to send on the body or params
-    const newCourse = {
-        courseName: req.body.courseName
-    }
-    console.log('new course is ', newCourse);
     const reqFields = ['courseName'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
@@ -31,24 +23,38 @@ courseRouter.post('/', (req, res) => {
         });
     }
 
+    const newCourse = {
+        courseName: req.body.courseName
+    }
+    
     const validation = Joi.validate(newCourse, CourseJoiSchema);
     if (validation.error){
         return res.status(400).json({error: validation.error});
     }
 
-    // it is req.user.id because i am getting this from the authentication
     User.findById(req.user.id)
             .then(user => {
                 if (user) {
                     newCourse.user = user._id;
-                    console.log(newCourse);
-                    Course.create(newCourse)
+                    Course.find({user: user._id, courseName:req.body.courseName})
+                    .count()
+                    .then(count => {
+                        if (count > 0) {
+                            return Promise.reject({
+                                code: 422,
+                                reason: 'ValidationError',
+                                message: 'Course number already exists',
+                                location: 'courseName'
+                            });
+                        }
+                    })
+                    .then(() => {
+                        return Course.create(newCourse)
                         .then(course => {
-                            console.log('course is ', course);
-                            console.log('user is ', req.user );
                             return res.status(201).json({
                                 id: course._id,
-                                user: `${user.firstname} ${user.lastname}`,
+                                studentFullName: `${user.firstName} ${user.lastName}`,
+                                studentUserName: `${user.username}`,
                                 courseName: course.courseName
                             })
                         })
@@ -56,6 +62,7 @@ courseRouter.post('/', (req, res) => {
                             console.error(err);
                             return res.status(500).json({error: `${err}`});
                         });
+                    }); 
                 } else {
                     const message = `user not found`;
                     console.error(message);
@@ -69,30 +76,20 @@ courseRouter.post('/', (req, res) => {
 });
 
 
-// get all coursees
+// get all courses
 courseRouter.get('/', (req, res) => {
-    console.log(req.user.id);
     User.findById(req.user.id)
         .then (user => {
-            console.log(user);
             Course.find({user: user._id})
-            .populate('User')
-            .then( courses => {
-                console.log(courses);
-                //res.status(200).json(courses);
-                res.status(200).json(courses.map(course => course.serialize()));
-                //res.status(200).json(courses.map(course => {
-                //    courseName = course.courseName,
-                 //   userFullName = `${course.user.firstname} ${course.user.lastname}`,
-                 //   userName = course.user.usernname
-                //}));
-            })
-            .catch(err => {
-                console.log(err);
-                return res.status(500).json({ error: `${err}` });
-            });
+                .populate('User')
+                .then( courses => {
+                    res.status(200).json(courses.map(course => course.serialize()));
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.status(500).json({ error: `${err}` });
+                });
         })
-    
 });
 
 // retrieve one course by courseName

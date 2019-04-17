@@ -4,11 +4,11 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose'); 
 
 const userSchema = new mongoose.Schema({
-    firstname: { 
+    firstName: { 
         type: String, 
         default: '' 
     },
-    lastname: { 
+    lastName: { 
         type: String, 
         default: ''
     },
@@ -26,10 +26,9 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.serialize = function() {
     return {
         id: this.id,
-        firstname: this.firstname || '',
-        lastname: this.lastname || '',
-        username: this.username || '',
-        //courses
+        firstName: this.firstName || '',
+        lastName: this.lastName || '',
+        username: this.username || ''
     };
 };
 
@@ -42,5 +41,5 @@ userSchema.statics.hashPassword = function(password) {
 };
 
 const User = mongoose.model('user', userSchema);
-console.log('before user module export')
+
 module.exports = {User};

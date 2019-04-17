@@ -2,7 +2,6 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 
 const {User} = require('../models/user.model');
 
@@ -12,9 +11,7 @@ const jsonParser = bodyParser.json();
 
 // add a new user
 userRouter.post('/', jsonParser, (req, res) => {
-    console.log('made it to user post');
 
-     // check that all req fields are present 
      const reqFields = ['username', 'password'];
      const missingField = reqFields.find(field => !(field in req.body));
      if (missingField) {
@@ -26,7 +23,7 @@ userRouter.post('/', jsonParser, (req, res) => {
             });
      }
 
-     const stringFields = ['username', 'password', 'firstname', 'lastname'];
+     const stringFields = ['username', 'password', 'firstName', 'lastName'];
      const nonStringField = stringFields.find(
          field => field in req.body && typeof req.body[field] != 'string'
      );
@@ -82,10 +79,10 @@ userRouter.post('/', jsonParser, (req, res) => {
         });
     }
 
-    let {username, password, firstname = '', lastname = ''} = req.body;
-    firstname = firstname.trim();
-    lastname = lastname.trim();
-    console.log('this is user router.  Did I make it past the router?');
+    let {username, password, firstName = '', lastName = ''} = req.body;
+    firstName = firstName.trim();
+    lastName = lastName.trim();
+
     // does the user already exist?
     return User.find({username})
         .count()
@@ -104,8 +101,8 @@ userRouter.post('/', jsonParser, (req, res) => {
             return User.create({
                 username,
                 password: hash,
-                firstname,
-                lastname
+                firstName,
+                lastName
             });
         })
         .then(user => {
@@ -126,7 +123,7 @@ userRouter.get('/', (req, res) => {
         .then(users => res.status(200).json(users.map(user => user.serialize())))
         .catch(err => {
             console.log(err);
-            return res.status(500).json({ error: 'something went wrong!' });
+            return res.status(500).json({ error: `${err}` });
         });
 });
 

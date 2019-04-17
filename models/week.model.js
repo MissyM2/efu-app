@@ -4,21 +4,52 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const weekSchema = new mongoose.Schema({
-    num: { type: Number, index: {unique: true}},
-    enddate: {type: Date, required: true}
+    user: { 
+        type: mongoose.Schema.Types.ObjectId, ref: "user"
+    },
+    weekNum: { 
+        type: Number, 
+        index: {unique: true}
+    },
+    startDate: {
+        type: Date,
+        required: true
+    },
+    endDate: {
+        type: Date, 
+        required: true
+    }
 });
+
+weekSchema.pre('find', function(next) {
+    this.populate('user');
+    next();
+});
+
+weekSchema.pre('findOne', function(next) {
+    this.populate('user');
+    next();
+});
+
+weekSchema.virtual('studentFullName').get(function(){
+    return `${this.user.firstName} ${this.user.lastName}`.trim();
+})
 
 weekSchema.methods.serialize = function() {
   return {
         id: this._id,
-        num: this.num,
-        enddate: this.enddate
+        studentFullName: this.studentFullName,
+        studentUserName: this.user.username,
+        weekNum: this.weekNum,
+        startDate: this.startDate,
+        endDate: this.endDate
     };
 };
 
 const WeekJoiSchema = Joi.object().keys({
-    num: Joi.number().required(),
-    enddate: Joi.date().required(),
+    weekNum: Joi.number().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
 });
 
 const Week = mongoose.model('Week', weekSchema);

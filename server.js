@@ -45,15 +45,14 @@ app.use(function (req, res, next) {
 // authentication
 passport.use(localStrategy);
 passport.use(jwtStrategy);
-console.log('after passport use in server.js');
 
 // public routers
-app.use('/api/users/', userRouter);
+app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/suggestion', suggestionRouter); 
 
 // protected routers
-//app.use('/api/weeks', weekRouter);
+app.use('/api/weeks', weekRouter);
 app.use('/api/courses', courseRouter); 
 app.use('/api/deliverables', deliverableRouter);
 
