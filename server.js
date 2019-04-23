@@ -3,13 +3,14 @@
 // import dependencies
 require ('dotenv').config();
 const express = require('express');  // for creating server
+const cors = require('cors');
 const mongoose = require('mongoose');    // for connecting/communicating to db
 const morgan = require('morgan');  // for logging
 const passport = require('passport');  //for authentication
 const bodyParser = require('body-parser');  // for parsing json
 const {localStrategy, jwtStrategy} = require('./auth/auth.strategies'); // for authentication and refreshing tokens
 
-const {PORT, MONGO_DATABASE_URL} = require('./config');
+const {PORT, MONGO_DATABASE_URL, CLIENT_ORIGIN} = require('./config');
 
 const app = express();
 
@@ -24,6 +25,11 @@ const { weekRouter } = require('./routes/week.router');
 const { authRouter } = require('./auth/auth.router');
 
 app.use(express.json());
+app.use(
+    cors({
+        origin: CLIENT_ORIGIN
+    })
+);
 
 // logging
 app.use(morgan('common'));

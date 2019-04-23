@@ -124,20 +124,12 @@ courseRouter.put('/:id', (req, res) => {
         return res.status(400).json({ error: 'Request path id and request body id values must match' });
     }
     const courseUpdate = {courseName: req.body.courseName};
-    const validation = Joi.validate(courseUpdate, courseJoiSchema);
+    const validation = Joi.validate(courseUpdate, CourseJoiSchema);
     if (validation.error) {
         return response.status(400).json({error: validation.error});
     }
 
-    const updated = {};
-    const updateableFields = ['courseName', 'num', 'desc'];
-    updateableFields.forEach(field => {
-        if(field in req.body) {
-            updated[field] = req.body[field];
-        }
-    });
-
-    Course.findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
+    Course.findByIdAndUpdate(req.params.id, {$set: courseUpdate}, {new: true})
         .then(updatedcourse => {
             res.status(200).json(updatedcourse.serialize())
         })

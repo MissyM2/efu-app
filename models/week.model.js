@@ -9,7 +9,7 @@ const weekSchema = new mongoose.Schema({
     },
     weekNum: { 
         type: Number, 
-        index: {unique: true}
+        required: true
     },
     startDate: {
         type: Date,

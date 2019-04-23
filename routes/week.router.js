@@ -96,6 +96,76 @@ weekRouter.get('/', (req, res) => {
                 });
         })
 });
+
+// get week by id
+weekRouter.get('/:weekNum', (req, res) => {
+    User.findById(req.user.id)
+        .then(user => {
+            if (user) {
+                Week.find({user: user._id, weekNum: req.params.weekNum})
+                    .then( weeks => {
+                        console.log(weeks);
+                        return res.status(200).json(weeks.map(week => week.serialize()));
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        return res.status(500).json({ error: `${err}` });
+                    });
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({error: `${err}`});
+        });         
+});
+
+// update a week id for the logged in user
+weekRouter.put('/:weekNum', (req, res) => {
+    if (!(req.params.weekNum && req.body.weekNum && req.params.weekNum === req.body.weekNum)) {
+        console.log('params.weekNum is ', req.params.weekNum)
+        console.log('req.body.weekNum is ', req.body.weekNum);
+        res.status(400).json({
+            error: 'Request path weekNum and request body weekNum values must match'
+        });
+    }
+
+    const updated = {};
+    console.log(updated);
+    const updateableFields = ['weekNum', 'startDate', 'endDate'];
+    updateableFields.forEach(field => {
+        if (field in req.body) {
+            updated[field] = req.body[field];
+        }
+    });
+
+    console.log('updateableFields are ', updateableFields);
+
+    User.findById(req.user.id)
+        .then(user => {
+            if (user) {
+                Week.find({user: user._id, weekNum: req.params.weekNum},{$set: updated}, { new: true})
+                    .then(updatedWeek => {
+                        res.status(200).json(updatedWeek.serialize());
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        return res.status(500).json({error: `${err}`});
+                    });
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({ error: `${err}`});
+        });
+});
  
 
 module.exports = {weekRouter};
