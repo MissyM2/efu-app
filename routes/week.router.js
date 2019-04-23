@@ -27,7 +27,11 @@ weekRouter.post('/', (req, res) => {
     const newWeek = {
         weekNum: req.body.weekNum,
         startDate: req.body.startDate,
-        endDate: req.body.endDate
+        endDate: req.body.endDate,
+        likedLeast: req.body.likedLeast,
+        likedMost: req.body.likedMost,
+        mostDifficult: req.body.mostDifficult,
+        leastDifficult: req.body.leastDifficult
     };
 
     const validation = Joi.validate(newWeek, WeekJoiSchema);
@@ -60,7 +64,11 @@ weekRouter.post('/', (req, res) => {
                                 studentUserName: `${user.username}`,
                                 weekNum: week.weekNum,
                                 startDate: week.startDate,
-                                endDate: week.endDate
+                                endDate: week.endDate,
+                                likedLeast: week.likedLeast,
+                                likedMost: week.likedMost,
+                                mostDifficult: week.mostDifficult,
+                                leastDifficult: week.leastDifficult
                             })
                         })
                         .catch(err => {

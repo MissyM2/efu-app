@@ -18,6 +18,18 @@ const weekSchema = new mongoose.Schema({
     endDate: {
         type: Date, 
         required: true
+    },
+    likedLeast: {
+        type: String
+    },
+    likedMost: {
+        type: String
+    },
+    mostDifficult: {
+        type: String
+    },
+    leastDifficult: {
+        type: String
     }
 });
 
@@ -42,7 +54,11 @@ weekSchema.methods.serialize = function() {
         studentUserName: this.user.username,
         weekNum: this.weekNum,
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
+        likedLeast: this.likedLeast,
+        likedMost: this.likedMost,
+        mostDifficult: this.mostDifficult,
+        leastDifficult: this.leastDifficult
     };
 };
 
@@ -50,6 +66,10 @@ const WeekJoiSchema = Joi.object().keys({
     weekNum: Joi.number().required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),
+    likedLeast: Joi.string(),
+    likedMost: Joi.string(),
+    mostDifficult: Joi.string(),
+    leastDifficult: Joi.string()
 });
 
 const Week = mongoose.model('Week', weekSchema);
