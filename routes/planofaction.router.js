@@ -4,17 +4,18 @@ const express = require('express');
 const passport = require('passport');
 
 const {User} = require('../models/user.model');
+const {Week} = require('../models/week.model');
 const {Course} = require('../models/course.model');
-const {Deliverable} = require('../models/deliverable.model');
+const {PlanofAction} = require('../models/planofaction.model');
 
 
-const deliverableRouter = express.Router();
-deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
+const planofactionRouter = express.Router();
+planofactionRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 
 // add a new deliverable for a given course
-deliverableRouter.post('/', (req, res) => {
-    const reqFields = ['courseName', 'dueDate', 'deliverableName', 'pressure', 'prephrs'];
+planofactionRouter.post('/', (req, res) => {
+    const reqFields = ['weekNum', 'deliverableName'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
@@ -25,12 +26,15 @@ deliverableRouter.post('/', (req, res) => {
         });
     }
 
-    const newDeliverable = {
-            dueDate: req.body.dueDate,
-            deliverableName: req.body.deliverableName,
-            pressure: req.body.pressure,
-            desc: req.body.desc,
-            prephrs: req.body.prephrs
+    const newPlanofAction = {
+            prepDate1: req.body.prepDate1,
+            prepHrs1: req.body.prepHrs1,
+            prepDate2: req.body.prepDate2,
+            prepHrs2: req.body.prepHrs2,
+            prepDate3: req.body.prepDate3,
+            prepHrs3: req.body.prepHrs3,
+            prepDate4: req.body.prepDate4,
+            prepHrs4: req.body.prepHrs4,
     };
     
     
@@ -38,22 +42,25 @@ deliverableRouter.post('/', (req, res) => {
     User.findById(req.user.id)
         .then(user => {
             if (user) {
-                newDeliverable.user = user._id;
-                Course.findOne({user:user._id, courseName: req.body.courseName})
-                    .then(course => {
-                        if (course) {
-                            newDeliverable.course = course._id;
-                            return Deliverable.create(newDeliverable)
-                                .then(deliverable => {
+                newPlanofAction.user = user._id;
+                Week.findOne({user:user._id, weekNum: req.body.weekNum})
+                    .then(week => {
+                        if (week) {
+                            newPlanofAction.week = week._id;
+                            return PlanofAction.create(newPlanofAction)
+                                .then(planofaction => {
                                     return res.status(201).json({
-                                        id: deliverable._id,
+                                        id: planofaction._id,
                                         studentFullName: `${user.firstname} ${user.lastname}`,
-                                        courseName: course.courseName,
-                                        dueDate: deliverable.dueDate,
-                                        deliverableName: deliverable.deliverableName,
-                                        pressure: deliverable.pressure,
-                                        desc: deliverable.desc,
-                                        prephrs: deliverable.prephrs
+                                        weekNum: week.weekNum,
+                                        prepDate1: planofaction.prepDate1,
+                                        prepHrs1: planofaction.prepHrs1,
+                                        prepDate2: planofaction.prepDate2,
+                                        prepHrs2: planofaction.prepHrs2,
+                                        prepDate3: planofaction.prepDate3,
+                                        prepHrs3: planofaction.prepHrs3,
+                                        prepDate4: planofaction.prepDate4,
+                                        prepHrs4: planofaction.prepHrs4,
                                     })
                                 })
                                 .catch(err => {
@@ -84,7 +91,7 @@ deliverableRouter.post('/', (req, res) => {
 
 
 // get all deliverables for selected user
-deliverableRouter.get('/', (req, res) => {
+planofactionRouter.get('/', (req, res) => {
     console.log(req.user.id);
     User.findById(req.user.id)
         .then (user => {
@@ -106,4 +113,4 @@ deliverableRouter.get('/', (req, res) => {
 });
 
 
-module.exports = {deliverableRouter};
+module.exports = {planofactionRouter};

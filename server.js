@@ -23,6 +23,7 @@ const { userRouter } = require('./routes/user.router');
 const { gradeRouter } = require('./routes/grade.router');
 const { courseRouter } = require('./routes/course.router');
 const { weekRouter } = require('./routes/week.router');
+const { planofactionRouter} = require('./routes/planofaction.router');
 const { authRouter } = require('./auth/auth.router');
 
 app.use(express.json());
@@ -63,6 +64,7 @@ app.use('/api/weeks', weekRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/grades', gradeRouter);
 app.use('/api/deliverables', deliverableRouter);
+app.use('/api/planofactions', planofactionRouter);
 
 
 // in case of an HTTP request that is not hadles by Express server
