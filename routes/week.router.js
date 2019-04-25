@@ -115,7 +115,8 @@ weekRouter.get('/:weekNum', (req, res) => {
                 Week.find({user: user._id, weekNum: req.params.weekNum})
                     .then( weeks => {
                         console.log(weeks);
-                        return res.status(200).json(weeks.map(week => week.serialize()));
+                        return res.status(200).json(weeks.map(week => week.serialize())
+                        );
                     })
                     .catch(err => {
                         console.error(err);

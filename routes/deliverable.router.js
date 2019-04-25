@@ -2,6 +2,7 @@
 
 const express = require('express');
 const passport = require('passport');
+const moment = require('moment');
 
 const {User} = require('../models/user.model');
 const {Course} = require('../models/course.model');
@@ -98,6 +99,36 @@ deliverableRouter.get('/', (req, res) => {
                     console.log(err);
                     return res.status(500).json({error: `${err}`});
                 });
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({error: `${err}`});
+        });
+});
+
+// get all deliverables for selected user BY TODAY'S DATE
+deliverableRouter.get('/:dueDate', (req, res) => {
+    console.log(req.user.id);
+    console.log('moment is ', moment());
+    User.findById(req.user.id)
+        .then (user => {
+            if (user) {
+                    Deliverable.find({user: user._id, dueDate: req.params.dueDate})
+                        .then(deliverables => {
+                            console.log(deliverables);
+                            res.status(200).json(
+                                deliverables.map(deliverable => deliverable.serialize())
+                            );
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            return res.status(500).json({error: `${err}`});
+                        });
+            } else {
+                const message = `uer not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
         })
         .catch(err => {
             console.log(err);
