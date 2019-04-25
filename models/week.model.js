@@ -7,6 +7,9 @@ const weekSchema = new mongoose.Schema({
     user: { 
         type: mongoose.Schema.Types.ObjectId, ref: "user"
     },
+    term: {
+        type: mongoose.Schema.Types.ObjectId, ref: "term"
+    },
     weekNum: { 
         type: Number, 
         required: true
@@ -35,11 +38,13 @@ const weekSchema = new mongoose.Schema({
 
 weekSchema.pre('find', function(next) {
     this.populate('user');
+    this.populate('term');
     next();
 });
 
 weekSchema.pre('findOne', function(next) {
     this.populate('user');
+    this.populate('term');
     next();
 });
 
@@ -52,6 +57,7 @@ weekSchema.methods.serialize = function() {
         id: this._id,
         studentFullName: this.studentFullName,
         studentUserName: this.user.username,
+        term: this.term.termDesc,
         weekNum: this.weekNum,
         startDate: this.startDate,
         endDate: this.endDate,

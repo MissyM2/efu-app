@@ -27,7 +27,7 @@ gradeRouter.post('/', (req, res) => {
     }
 
     const newGrade = {
-            GradeNum: req.body.GradeNum
+            gradeNum: req.body.gradeNum
     };
     
     

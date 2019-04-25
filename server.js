@@ -17,14 +17,14 @@ const app = express();
 mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
 
 // import modules
-const { deliverableRouter } = require('./routes/deliverable.router');
-const { suggestionRouter } = require('./routes/suggestion.router');
 const { userRouter } = require('./routes/user.router');
-const { gradeRouter } = require('./routes/grade.router');
+const { authRouter } = require('./auth/auth.router');
+const { termRouter } = require('./routes/term.router');
 const { courseRouter } = require('./routes/course.router');
 const { weekRouter } = require('./routes/week.router');
-const { planofactionRouter} = require('./routes/planofaction.router');
-const { authRouter } = require('./auth/auth.router');
+const { gradeRouter } = require('./routes/grade.router');
+const { deliverableRouter } = require('./routes/deliverable.router');
+const { suggestionRouter } = require('./routes/suggestion.router');
 
 app.use(express.json());
 app.use(
@@ -60,11 +60,11 @@ app.use('/api/auth', authRouter);
 app.use('/api/suggestion', suggestionRouter); 
 
 // protected routers
+app.use('/api/terms', termRouter);
 app.use('/api/weeks', weekRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/grades', gradeRouter);
 app.use('/api/deliverables', deliverableRouter);
-app.use('/api/planofactions', planofactionRouter);
 
 
 // in case of an HTTP request that is not hadles by Express server
