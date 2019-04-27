@@ -106,6 +106,7 @@ weekRouter.get('/', (req, res) => {
                 });
         })
 });
+/*
 
 // get week by id
 weekRouter.get('/:weekNum', (req, res) => {
@@ -133,6 +134,7 @@ weekRouter.get('/:weekNum', (req, res) => {
             return res.status(500).json({error: `${err}`});
         });         
 });
+
 
 // update a week id for the logged in user
 weekRouter.put('/:weekNum', (req, res) => {
@@ -177,6 +179,6 @@ weekRouter.put('/:weekNum', (req, res) => {
             return res.status(500).json({ error: `${err}`});
         });
 });
- 
+ */
 
 module.exports = {weekRouter};

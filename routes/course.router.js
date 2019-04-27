@@ -79,83 +79,28 @@ courseRouter.post('/', (req, res) => {
 
 
 
-// get all courses by term by user
-//working on this!
-courseRouter.get('/:term', (req, res) => {
+// get all courses for selected user
+courseRouter.get('/', (req, res) => {
+    console.log(req.user.id);
     User.findById(req.user.id)
         .then (user => {
-            Term.findOne({user:user._id, term: req.params.term})
-                .then(term => {
-                    Course.find({user: user._id, term: term._id})
-                    .populate('User')
-                    .then( courses => {
-                        res.status(200).json(courses.map(course => course.serialize()));
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        return res.status(500).json({ error: `${err}` });
-                    });
+            Course.find({user: user._id})
+                .then(courses => {
+                    res.status(200).json(
+                        courses.map(course => course.serialize())
+                    )
                 })
-            
-        })
-});
-
-// retrieve one course by courseName
-courseRouter.get('/:courseName', (req, res) => {
-    console.log('did i make it here?');
-    Course.find({courseName: req.params.courseName})
-        .then(courses => {
-            console.log(courses);
-                return res.status(200).json(courses.map(course => course.serialize()));
+                .catch(err => {
+                    console.log(err);
+                    return res.status(500).json({error: `${err}`});
+                });
         })
         .catch(err => {
             console.log(err);
-            return res.status(500).json({ error: `${err}` })
+            return res.status(500).json({error: `${err}`});
         });
 });
 
-// retrieve all course for the logged in user
-courseRouter.get('/:id', (req, res) => {
-    Course.findById(req.params.id)
-        .then(course => {
-            res.json(course.serialize())
-        })
-        .catch(err => {
-            console.log(err);
-            return res.status(500).json({ error: `${err}` })
-        });
-});
 
-// update course by id
-courseRouter.put('/:id', (req, res) => {
-    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-        return res.status(400).json({ error: 'Request path id and request body id values must match' });
-    }
-    const courseUpdate = {courseName: req.body.courseName};
-    const validation = Joi.validate(courseUpdate, CourseJoiSchema);
-    if (validation.error) {
-        return response.status(400).json({error: validation.error});
-    }
-
-    Course.findByIdAndUpdate(req.params.id, {$set: courseUpdate}, {new: true})
-        .then(updatedcourse => {
-            res.status(200).json(updatedcourse.serialize())
-        })
-        .catch(err => {
-            console.log(err);
-            return res.status(500).json({ error: `${err}` })
-        });
-    });
-
-//  remove course by courseName
-courseRouter.delete('/:courseName', (req, res) => {
-    return Course.deleteMany({"courseName": req.params.courseName})
-        .then(() => {
-            res.status(200).json({success: 'course has been removed'})
-        })
-        .catch(err => {
-            res.status(500).json({ error: 'something went wrong!' })
-        });
-});
 
 module.exports = {courseRouter};
