@@ -57,7 +57,7 @@ weekSchema.methods.serialize = function() {
         id: this._id,
         studentFullName: this.studentFullName,
         studentUserName: this.user.username,
-        term: this.term.termDesc,
+        termDesc: this.term.termDesc,
         weekNum: this.weekNum,
         startDate: this.startDate,
         endDate: this.endDate,
@@ -69,6 +69,7 @@ weekSchema.methods.serialize = function() {
 };
 
 const WeekJoiSchema = Joi.object().keys({
+    termDesc: Joi.string().required(),
     weekNum: Joi.number().required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),

@@ -65,6 +65,7 @@ app.use('/api/weeks', weekRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/grades', gradeRouter);
 app.use('/api/deliverables', deliverableRouter);
+app.use('/api/suggestions', suggestionRouter);
 
 
 // in case of an HTTP request that is not hadles by Express server

@@ -12,19 +12,19 @@ suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 
 // add a new suggestion
 suggestionRouter.post('/', (req, res) => {
-
+    console.log('suggestion post made it');
     // check that all req fields are in body
     const reqFields = ['category', 'desc'];
-    for (let i=0; i <reqFields.length; i++) {
-        const field = reqFields[i];
-            if(!(field in req.body)) {
-                const message = `Missing \`${field}\` in request body`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        });
     }
 
-    // create object with request items
     const newSuggestion = {
         category: req.body.category,
         desc: req.body.desc,
@@ -32,10 +32,10 @@ suggestionRouter.post('/', (req, res) => {
     };
 
     // validation
-    const validation = Joi.validate(newSuggestion, suggestionJoiSchema);
-    if (validation.error){
-        return Response.status(400).json({error: validation.error});
-    }
+    //const validation = Joi.validate(newSuggestion, suggestionJoiSchema);
+    //if (validation.error){
+    //    return Response.status(400).json({error: validation.error});
+    //}
 
     // create new suggestion
     Suggestion.create(newSuggestion)
@@ -53,9 +53,9 @@ suggestionRouter.post('/', (req, res) => {
 suggestionRouter.get('/', (req, res) => {
     Suggestion.find()
         .sort({ category: -1} )
-        .then( strategies => {
+        .then( suggestions => {
                 return res.status(200)
-                    .json(strategies.map(suggestion => suggestion.serialize())
+                    .json(suggestions.map(suggestion => suggestion.serialize())
                     );
         })
         .catch(err => {

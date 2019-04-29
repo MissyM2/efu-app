@@ -14,7 +14,7 @@ courseRouter.use("/", passport.authenticate('jwt', { session: false }));  //this
 
 // add a new course for a given user
 courseRouter.post('/', (req, res) => {
-    const reqFields = ['termDesc','courseName'];
+    const reqFields = ['termDesc', 'courseName'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({code: 422, 
