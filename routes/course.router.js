@@ -1,12 +1,11 @@
 'use strict';
 
 const express = require('express');
-const Joi = require('joi');
 const passport = require('passport');
 
 const {User} = require('../models/user.model');
 const {Term} = require('../models/term.model');
-const {Course, CourseJoiSchema} = require('../models/course.model');
+const {Course} = require('../models/course.model');
 
 const courseRouter = express.Router();
 courseRouter.use("/", passport.authenticate('jwt', { session: false }));  //this is where we are getting the user.id
@@ -27,17 +26,12 @@ courseRouter.post('/', (req, res) => {
     const newCourse = {
         courseName: req.body.courseName
     }
-    
-    const validation = Joi.validate(newCourse, CourseJoiSchema);
-    if (validation.error){
-        return res.status(400).json({error: validation.error});
-    }
 
     User.findById(req.user.id)
     .then(user => {
         if (user) {
             newCourse.user = user._id;
-            Term.findOne({user: user._id, termDesc: req.body.termDesc})
+            Term.findOne({termDesc: req.body.termDesc})
                 .then(term => {
                     if (term) {
                         newCourse.term = term._id;
@@ -101,6 +95,51 @@ courseRouter.get('/', (req, res) => {
         });
 });
 
+/*
+//update given course
+courseRouter.put('/', (req, res) => {
+    const reqFields = ['oldCourseName', 'newCourseName'];
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({code: 422, 
+            reason: 'ValidationError', 
+            message: 'Missing field', 
+            location: missingField
+        });
+    }
 
+    const updatedCourse = {
+        courseName: req.body.newCourseName
+    }
+   /* 
+    const validation = Joi.validate(newCourse, CourseJoiSchema);
+    if (validation.error){
+        return res.status(400).json({error: validation.error});
+    }
+
+    User.findById(req.user.id)
+    .then(user => {
+        if (user) {
+            updatedCourse.user = user._id;
+            Term.findOne({user:user_id, term:termDesc}) 
+                .then(term => {
+                    if (term) {
+                        updatedCourse.term=term._id;
+                        Course.find({user:user._id, term: term._id, courseName: oldCourseName})
+                            .then(course => {
+                                if (course) {
+                                    Course.findOneAndUpdate({course: course._id}, {$set: updatedCourse}, {new: true})
+                                } 
+                    }
+                    
+                
+                })
+            }
+             
+             })
+                      
+});
+
+*/
 
 module.exports = {courseRouter};

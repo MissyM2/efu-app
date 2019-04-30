@@ -1,7 +1,6 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const Joi = require('joi');
 
 const weekSchema = new mongoose.Schema({
     user: { 
@@ -12,14 +11,6 @@ const weekSchema = new mongoose.Schema({
     },
     weekNum: { 
         type: Number, 
-        required: true
-    },
-    startDate: {
-        type: Date,
-        required: true
-    },
-    endDate: {
-        type: Date, 
         required: true
     },
     likedLeast: {
@@ -59,8 +50,6 @@ weekSchema.methods.serialize = function() {
         studentUserName: this.user.username,
         termDesc: this.term.termDesc,
         weekNum: this.weekNum,
-        startDate: this.startDate,
-        endDate: this.endDate,
         likedLeast: this.likedLeast,
         likedMost: this.likedMost,
         mostDifficult: this.mostDifficult,
@@ -68,17 +57,6 @@ weekSchema.methods.serialize = function() {
     };
 };
 
-const WeekJoiSchema = Joi.object().keys({
-    termDesc: Joi.string().required(),
-    weekNum: Joi.number().required(),
-    startDate: Joi.date().required(),
-    endDate: Joi.date().required(),
-    likedLeast: Joi.string(),
-    likedMost: Joi.string(),
-    mostDifficult: Joi.string(),
-    leastDifficult: Joi.string()
-});
+const Week = mongoose.model('week', weekSchema);
 
-const Week = mongoose.model('Week', weekSchema);
-
-module.exports = {Week, WeekJoiSchema};
+module.exports = {Week};

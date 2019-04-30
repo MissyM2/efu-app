@@ -1,7 +1,6 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const Joi = require('joi');
 
 const courseSchema = new mongoose.Schema({
     user: { 
@@ -43,10 +42,6 @@ courseSchema.methods.serialize = function() {
     };
 };
 
-const CourseJoiSchema = Joi.object().keys({
-        courseName: Joi.string().required()
-});
-
 const Course = mongoose.model('course', courseSchema);
 
-module.exports = {Course, CourseJoiSchema};
+module.exports = {Course};

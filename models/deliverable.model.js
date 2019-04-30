@@ -1,10 +1,11 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const Joi = require('joi');
 
 const deliverableSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user'},
+    term: { type: mongoose.Schema.Types.ObjectId, ref: 'term'},
+    week: { type: mongoose.Schema.Types.ObjectId, ref: 'week'},
     course:{ type: mongoose.Schema.Types.ObjectId, ref: 'course'},
     dueDate: { type: Date, required: true},
     deliverableName: { type: String, required: true },
@@ -16,12 +17,16 @@ const deliverableSchema = new mongoose.Schema({
 // the user and course can be prepopulated because it is referred to in the schema
 deliverableSchema.pre('find', function(next) {
     this.populate('user');
+    this.populate('term');
+    this.populate('week');
     this.populate('course');
     next();
 });
 
 deliverableSchema.pre('findOne', function(next) {
     this.populate('user');
+    this.populate('term'),
+    this.populate('week');
     this.populate('course');
     next();
 });
@@ -37,7 +42,9 @@ deliverableSchema.methods.serialize = function() {
     return {
         id: this._id,
         user: this.user,
-        course: this.course,
+        termDesc: this.term.termDesc,
+        weekNum: this.week.weekNum,
+        courseName: this.course.courseName,
         dueDate: this.dueDate,
         deliverableName: this.deliverableName,
         pressure: this.pressure,
@@ -46,15 +53,7 @@ deliverableSchema.methods.serialize = function() {
     };
 };
 
-const DeliverableJoiSchema = Joi.object().keys({
-    dueDate: Joi.date().required(),
-    deliverableName: Joi.string().required(),
-    pressure: Joi.string().required(),
-    desc: Joi.string().optional(),
-    prephrs: Joi.number().required()
-
-});
 
 const Deliverable = mongoose.model('deliverable', deliverableSchema);
 
-module.exports = {Deliverable, DeliverableJoiSchema};
+module.exports = {Deliverable};

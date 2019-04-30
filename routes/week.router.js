@@ -1,20 +1,18 @@
 'use strict';
 
 const express = require('express');
-const Joi = require('joi');
 const passport = require('passport');
 
 const {User} = require('../models/user.model');
 const {Term} = require('../models/term.model');
-const {Week, WeekJoiSchema} = require('../models/week.model');
+const {Week} = require('../models/week.model');
 
 const weekRouter = express.Router();
 weekRouter.use('/', passport.authenticate('jwt', { session: false }));
 
 // add a new week
 weekRouter.post('/', (req, res) => {
-
-    const reqFields = ['termDesc','weekNum', 'startDate', 'endDate'];
+    const reqFields = ['termDesc','weekNum'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
@@ -26,39 +24,29 @@ weekRouter.post('/', (req, res) => {
     }
 
     const newWeek = {
-        termDesc: req.body.termDesc,
         weekNum: req.body.weekNum,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
         likedLeast: req.body.likedLeast,
         likedMost: req.body.likedMost,
         mostDifficult: req.body.mostDifficult,
         leastDifficult: req.body.leastDifficult
     };
 
-    const validation = Joi.validate(newWeek, WeekJoiSchema);
-    if (validation.error){
-        return res.status(400).json({error: validation.error});
-    }
-
     User.findById(req.user.id)
         .then(user => {
             if (user) {
                 newWeek.user = user._id;
-                Term.findOne({user: user._id, termDesc: req.body.termDesc})
+                Term.findOne({termDesc: req.body.termDesc})
                     .then(term => {
                         if (term) {
                             newWeek.term = term._id;
+                            console.log('newWeek with term is ', newWeek);
                             return Week.create(newWeek)
                                 .then(week => {
                                     return res.status(201).json({
                                         id: week._id,
                                         studentFullName: `${user.firstName} ${user.lastName}`,
-                                        studentUserName: `${user.username}`,
                                         termDesc: term.termDesc,
                                         weekNum: week.weekNum,
-                                        startDate: week.startDate,
-                                        endDate: week.endDate,
                                         likedLeast: week.likedLeast,
                                         likedMost: week.likedMost,
                                         mostDifficult: week.mostDifficult,
@@ -192,8 +180,6 @@ weekRouter.put('/:weekNum', (req, res) => {
 weekRouter.put('/:weekNum', (req, res) => {
     const weekUpdate = {
         weekNum: req.body.weekNum,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
         likedLeast: req.body.likedLeast,
         likedMost: req.body.likedMost,
         mostDifficult: req.body.mostDifficult,

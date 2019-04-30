@@ -1,7 +1,6 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const Joi = require('joi');
 
 const gradeSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user'},
@@ -42,11 +41,7 @@ gradeSchema.methods.serialize = function() {
     };
 };
 
-const GradeJoiSchema = Joi.object().keys({
-    prephrs: Joi.number().required()
-
-});
 
 const Grade = mongoose.model('grade', gradeSchema);
 
-module.exports = {Grade, GradeJoiSchema};
+module.exports = {Grade};
