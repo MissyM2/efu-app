@@ -103,66 +103,66 @@ weekRouter.get('/', (req, res) => {
 });
 
 
-/*
-weekRouter.get('/:weekNum', (req, res) => {
-    User.findById(req.user.id)
-        .then(user => {
-            if (user) {
-                Week.find({user: user._id, weekNum: req.params.weekNum})
-                    .then( weeks => {
-                        console.log(weeks);
-                        return res.status(200).json(weeks.map(week => week.serialize())
-                        );
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        return res.status(500).json({ error: `${err}` });
-                    });
-            } else {
-                const message = `user not found`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({error: `${err}`});
-        });         
-});
+
 
 
 // update a week id for the logged in user
-weekRouter.put('/:weekNum', (req, res) => {
-    if (!(req.params.weekNum && req.body.weekNum && req.params.weekNum === req.body.weekNum)) {
-        console.log('params.weekNum is ', req.params.weekNum)
-        console.log('req.body.weekNum is ', req.body.weekNum);
-        res.status(400).json({
-            error: 'Request path weekNum and request body weekNum values must match'
-        });
-    }
+weekRouter.put('/', (req, res) => {
+   const reqFields = ['termDesc', 'weekNum'];
 
-    const updated = {};
-    console.log(updated);
-    const updateableFields = ['weekNum', 'startDate', 'endDate'];
+    const updatedWeek = {};
+    console.log('before fields are added', updatedWeek);
+    const updateableFields = ['likedLeast', 'likedMost', 'mostDifficult', 'leastDifficult'];
     updateableFields.forEach(field => {
         if (field in req.body) {
-            updated[field] = req.body[field];
+            updatedWeek[field] = req.body[field];
         }
     });
 
     console.log('updateableFields are ', updateableFields);
+    console.log('updatedWeek is ', updatedWeek);
 
     User.findById(req.user.id)
         .then(user => {
             if (user) {
-                Week.find({user: user._id, weekNum: req.params.weekNum},{$set: updated}, { new: true})
-                    .then(updatedWeek => {
-                        res.status(200).json(updatedWeek.serialize());
+                updatedWeek.user = user._id;
+                Term.findOne({termDesc: req.body.termDesc})
+                    .then(term => {
+                        if (term) {
+                            updatedWeek.term = term._id;
+                            Week.findOne({user:user._id, term:term._id, weekNum: req.body.weekNum})
+                                .then(week => {
+                                    if (week) {
+                                        updatedWeek.week = week._id;
+                                        Week.findOneAndUpdate({_id: week._id}, updatedWeek, {new: true})
+                                            .then(updatedweek => {
+                                                console.log('we made it to then');
+                                                res.status(200).json(updatedweek);
+                                            })
+                                            .catch(err => {
+                                                console.error(err);
+                                                return res.status(500).json({error: `${err}`});
+                                            });
+                                    } else {
+                                        const message = 'week not found';
+                                        console.error(message);
+                                        return res.status(400).send(message);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    return res.status(500).json({error: `${err}`});
+                                }); 
+                        } else {
+                            const message = `term not found`;
+                            console.error(message);
+                            return res.status(400).send(message);
+                        }
                     })
-                    .catch(err => {
+                    .catch (err => {
                         console.error(err);
                         return res.status(500).json({error: `${err}`});
-                    });
+                    }); 
             } else {
                 const message = `user not found`;
                 console.error(message);
@@ -174,7 +174,7 @@ weekRouter.put('/:weekNum', (req, res) => {
             return res.status(500).json({ error: `${err}`});
         });
 });
- */
+
 
  //update details of the week by weekNum
 weekRouter.put('/:weekNum', (req, res) => {

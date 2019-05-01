@@ -129,7 +129,15 @@ courseRouter.put('/', (req, res) => {
                                     console.log('this is the course to be updated', course);
                                     console.log({_id: course._id});
                                     console.log(course._id);
-                                    Course.findOneAndUpdate({_id: course._id}, updatedCourse, {new: true});
+                                    Course.findOneAndUpdate({_id: course._id}, updatedCourse, {new: true})
+                                        .then(newcourse => {
+                                            console.log('we made it to then');
+                                            res.status(200).json(newcourse);
+                                        })
+                                        .catch(err => {
+                                            console.error(err);
+                                            return res.status(500).json({error: `${err}`});
+                                        });
                                 } else {
                                     const message = 'course not found';
                                     console.error(message);
