@@ -95,10 +95,10 @@ courseRouter.get('/', (req, res) => {
         });
 });
 
-/*
+
 //update given course
 courseRouter.put('/', (req, res) => {
-    const reqFields = ['oldCourseName', 'newCourseName'];
+    const reqFields = [	'termDesc','oldCourseName', 'newCourseName'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({code: 422, 
@@ -111,35 +111,59 @@ courseRouter.put('/', (req, res) => {
     const updatedCourse = {
         courseName: req.body.newCourseName
     }
-   /* 
-    const validation = Joi.validate(newCourse, CourseJoiSchema);
-    if (validation.error){
-        return res.status(400).json({error: validation.error});
-    }
-
+    console.log('updatedCourse before searching', updatedCourse);
+  
     User.findById(req.user.id)
     .then(user => {
         if (user) {
             updatedCourse.user = user._id;
-            Term.findOne({user:user_id, term:termDesc}) 
+            console.log('updatedCourse after user is found', updatedCourse);
+            Term.findOne({termDesc: req.body.termDesc}) 
                 .then(term => {
                     if (term) {
                         updatedCourse.term=term._id;
-                        Course.find({user:user._id, term: term._id, courseName: oldCourseName})
+                        console.log('updatedCourse after term is found', updatedCourse);
+                        Course.findOne({user:user._id, term:term._id, courseName: req.body.oldCourseName})
                             .then(course => {
                                 if (course) {
-                                    Course.findOneAndUpdate({course: course._id}, {$set: updatedCourse}, {new: true})
-                                } 
+                                    console.log('this is the course to be updated', course);
+                                    console.log({_id: course._id});
+                                    console.log(course._id);
+                                    Course.findOneAndUpdate({_id: course._id}, updatedCourse, {new: true});
+                                } else {
+                                    const message = 'course not found';
+                                    console.error(message);
+                                    return res.status(400).send(message);
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                return res.status(500).json({error: `${err}`});
+                            }); 
+                    } else {
+                        const message = `term not found`;
+                        console.error(message);
+                        return res.status(400).send(message);
+
                     }
-                    
-                
                 })
-            }
-             
-             })
-                      
+                .catch(err => {
+                    console.error(err);
+                    return res.status(500).json({error: `${err}`});
+                });
+        } else {
+            const message = `user not found`;
+            console.error(message);
+            return res.status(400).send(message);
+            
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({error: `${err}`});
+    });                   
 });
 
-*/
+
 
 module.exports = {courseRouter};
