@@ -49,32 +49,6 @@ termRouter.get('/', (req, res) => {
 });
 
 
-// get term by id
-termRouter.get('/:id', (req, res) => {
-    User.findById(req.user.id)
-        .then(user => {
-            if (user) {
-                Term.find({user: user._id, id: req.params.id})
-                    .then( terms => {
-                        console.log(terms);
-                        return res.status(200).json(terms.map(term => term.serialize()));
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        return res.status(500).json({ error: `${err}` });
-                    });
-            } else {
-                const message = `user not found`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({error: `${err}`});
-        });         
-});
-
 //update given term
 termRouter.put('/', (req, res) => {
     const reqFields = [	'oldTermDesc', 'newTermDesc'];

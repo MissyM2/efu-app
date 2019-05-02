@@ -1,7 +1,6 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const Joi = require('joi');
 
 
 const suggestionSchema = new mongoose.Schema({
@@ -19,12 +18,6 @@ suggestionSchema.methods.serialize = function() {
     };
 };
 
-const SuggestionJoiSchema = Joi.object().keys({
-    category: Joi.string().required(),
-    desc: Joi.string().required(),
-    credit: Joi.string().optional()
-});
-
 const Suggestion = mongoose.model('suggestion', suggestionSchema);
 
-module.exports = {Suggestion, SuggestionJoiSchema};
+module.exports = {Suggestion};

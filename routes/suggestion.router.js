@@ -1,7 +1,6 @@
 'use strict';
 
 const express = require('express');
-const Joi = require('joi');
 const passport = require('passport');
 
 const {Suggestion, suggestionJoiSchema} = require('../models/suggestion.model');
@@ -13,7 +12,6 @@ suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 // add a new suggestion
 suggestionRouter.post('/', (req, res) => {
     console.log('suggestion post made it');
-    // check that all req fields are in body
     const reqFields = ['category', 'desc'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
@@ -30,12 +28,6 @@ suggestionRouter.post('/', (req, res) => {
         desc: req.body.desc,
         credit: req.body.credit
     };
-
-    // validation
-    //const validation = Joi.validate(newSuggestion, suggestionJoiSchema);
-    //if (validation.error){
-    //    return Response.status(400).json({error: validation.error});
-    //}
 
     // create new suggestion
     Suggestion.create(newSuggestion)

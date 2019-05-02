@@ -176,55 +176,6 @@ weekRouter.put('/', (req, res) => {
 });
 
 
- //update details of the week by weekNum
-weekRouter.put('/:weekNum', (req, res) => {
-    const weekUpdate = {
-        weekNum: req.body.weekNum,
-        likedLeast: req.body.likedLeast,
-        likedMost: req.body.likedMost,
-        mostDifficult: req.body.mostDifficult,
-        leastDifficult: req.body.leastDifficult
-    };
 
-    const validation = Joi.validate(weekUpdate, WeekJoiSchema);
-    if (validation.error){
-        return res.status(400).json({error: validation.error});
-    }
-
-    User.findById(req.user.id)
-        .then(user => {
-            if (user) {
-                Term.find({user: user._id, termDesc: req.body.termDesc})
-                    .then(term => {
-                        if (term) {
-                            Week.findOneAndUpdate(req.params.weekNum, weekUpdate)
-                                .then(week => {
-                                    return res.status(201).json(week)                      
-                                })                               
-                                .catch(err => {
-                                    console.error(err);
-                                    res.status(500).json({ error: `${err}`});
-                                });
-                        } else {
-                            const message = `term not found`;
-                            console.error(message);
-                            return res.status(400).send(message);
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        return res.status(500).json({error: `${err}`});
-                    });
-            } else {
-                const message = `user not found`;
-                console.error(message);
-                return res.status(400).send(message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            return res.status(500).json({error: `${err}`});
-        });
-});
 
 module.exports = {weekRouter};
