@@ -14,7 +14,11 @@ const {PORT, MONGO_DATABASE_URL, CLIENT_ORIGIN} = require('./config');
 
 const app = express();
 
+
 mongoose.Promise = global.Promise;  // configure mongoose to use ES6 promises
+
+// converting to json format
+app.use(bodyParser.json());
 
 // import modules
 const { userRouter } = require('./routes/user.router');
@@ -36,8 +40,7 @@ app.use(
 // logging
 app.use(morgan('common'));
 
-// converting to json format
-app.use(bodyParser.json());
+
 
 // CORS
 app.use(function (req, res, next) {

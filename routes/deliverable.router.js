@@ -143,6 +143,105 @@ deliverableRouter.get('/', (req, res) => {
         });
 });
 
+
+// get documents based on a criteria that is sent through the req.body
+deliverableRouter.post('/search', (req, res) => {
+    var userid = '';
+    var termid = '';
+    var weekid = '';
+    var courseid = '';
+    console.log('req body inside of deliverable router is ', req.body);
+    //user: '5cc05cab4f68a203112870e4',
+  //termDesc: 'Spring, 2019',
+  //weekNum: '2',
+  //courseName: 'English 101' }
+
+    
+    User.findById(req.user.id)
+        .then(user => {
+            if (user) {
+                userid = user._id;
+                // now that the user is found, find the term
+                Term.findOne({termDesc: req.body.termDesc})
+                    .then(term => {
+                        if (term) {
+                            termid = term._id;
+                            // now that the user and term are found, find the week
+                            Week.findOne({user:user._id, weekNum: req.body.weekNum})
+                                .then(week => {
+                                    if (week) {
+                                        //console.log(week);
+                                        weekid = week._id;
+                                        // now that user, term and week are found, find course
+                                        Course.findOne({user:user._id, courseName: req.body.courseName})
+                                        .then(course => {
+                                            if (course) {
+                                                courseid = course._id;
+                                                // now that all req fields (user, term, week and course are found, create grade)
+                                                return Deliverable.find({user:userid, term:termid, week:weekid, course:courseid})
+                                                    .then(deliverables => {
+                                                        console.log('deliverables after deliverables are found', deliverables);
+                                                        if(deliverables) {
+                                                            console.log('after the search, found some deliverables ', deliverables);
+                                                            const message = 'there are deliverables with this user, term, week and course. Returning deliverables';
+                                                            console.log(message);
+                                                            return res.status(200).json(deliverables);
+                                                        } else {
+                                                            console.log('after the search, there are no deliverables with this user, term, week and course ', grade);
+                                                            const message = 'no deliverables found';
+                                                            console.log(message);
+                                                            res.status(200).json({exists: false});
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .catch(err => {
+                                                        console.error(err);
+                                                        return res.status(500).json({error: `${err}`});
+                                                    });
+                                            } else {
+                                                const message = `course not found`;
+                                                console.error(message);
+                                                return res.status(400).send(message);
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.error(err);
+                                            return res.status(500).json({ error: `${err}`});
+                                        });
+
+                                    } else {
+                                        const message = `week not found`;
+                                        console.error(message);
+                                        return res.status(400).send(message);
+                                    }
+                                })
+                                .catch (err => {
+                                    console.error(err);
+                                    return res.status(500).json({ error: `${err}`});
+                                });
+                        } else {
+                            const message = `term not found`;
+                            console.error(message);
+                            return res.status(500).send(message);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        return res.status(500).json({ error: `${err}`});
+                    });
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(500).send(message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({ error: `${err}`});
+        });
+});
+
+
 // update a Deliverable for a given course, for a given week, for a given term for a given user
 deliverableRouter.put('/', (req, res) => {
     const reqFields = ['termDesc','courseName','weekNum', 'olddueDate'];

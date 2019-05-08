@@ -36,7 +36,6 @@ courseSchema.methods.serialize = function() {
     return {
         id: this._id,
         studentFullName: this.studentFullName,
-        studentUserName:  this.user.username,
         term: this.term.termDesc,
         courseName: this.courseName
     };

@@ -36,10 +36,10 @@ gradeSchema.virtual('studentFullName').get(function(){
 gradeSchema.methods.serialize = function() {
     return {
         id: this._id,
-        user: this.user.username,
+        user: this.studentFullName,
         term: this.term.termDesc,
-        week: this.week,
-        course: this.course,
+        week: this.week.weekNum,
+        course: this.course.courseName,
         gradeNum: this.gradeNum
     };
 };

@@ -40,10 +40,9 @@ courseRouter.post('/', (req, res) => {
                                 return res.status(201).json({
                                     id: course._id,
                                     studentFullName: `${user.firstName} ${user.lastName}`,
-                                    studentUserName: `${user.username}`,
-                                    termDesc: term.termDesc,
-                                    courseName: course.courseName
-                                });                         
+                                    termName: term.termDesc,
+                                    courseName: course.courseName                      
+                                });
                             })
                             .catch(err => {
                                 console.error(err);
