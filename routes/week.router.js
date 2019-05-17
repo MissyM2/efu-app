@@ -175,6 +175,87 @@ weekRouter.put('/', (req, res) => {
         });
 });
 
+//delete route for WeekNum with proper term and user
+weekRouter.delete('/', (req, res) => {
+    const reqFields = ['termDesc', 'weekNum'];
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({
+            code: 422, 
+            reason: 'ValidationError', 
+            message: 'Missing field', 
+            location: missingField
+        });
+    }
+ 
+     User.findById(req.user.id)
+         .then(user => {
+             if (user) {
+                 const userID = user._id;
+                 Term.findOne({termDesc: req.body.termDesc})
+                     .then(term => {
+                         if (term) {
+                             Week.findOne({user:user._id, term:term._id, weekNum: req.body.weekNum})
+                                 .then(week => {
+                                     if (week) {
+                                         Week.findByIdAndRemove({_id: week._id})
+                                             .then(() => {
+                                                     console.log(userID);
+                                                     console.log('week has been removed properly!');
+                                                     User.findById(userID)
+                                                     .then (user => {
+                                                         Week.find({user: user._id})
+                                                             .then(weeks => {
+                                                                 res.status(200).json(
+                                                                     weeks.map(week => week.serialize())
+                                                                 )
+                                                             })
+                                                             .catch(err => {
+                                                                 console.log(err);
+                                                                 return res.status(500).json({error: `${err}`});
+                                                             });
+                                                     })
+                                                     .catch(err => {
+                                                         console.log(err);
+                                                         return res.status(500).json({error: `${err}`});
+                                                     });
+                                            })
+                                             .catch(err => {
+                                                 console.error(err);
+                                                 return res.status(500).json({error: `${err}`});
+                                             });
+                                     } else {
+                                         const message = 'week not found';
+                                         console.error(message);
+                                         return res.status(400).send(message);
+                                     }
+                                 })
+                                 .catch(err => {
+                                     console.error(err);
+                                     return res.status(500).json({error: `${err}`});
+                                 }); 
+                         } else {
+                             const message = `term not found`;
+                             console.error(message);
+                             return res.status(400).send(message);
+                         }
+                     })
+                     .catch (err => {
+                         console.error(err);
+                         return res.status(500).json({error: `${err}`});
+                     }); 
+             } else {
+                 const message = `user not found`;
+                 console.error(message);
+                 return res.status(400).send(message);
+             }
+         })
+         .catch(err => {
+             console.log(err);
+             return res.status(500).json({ error: `${err}`});
+         });
+ });
+
 
 
 

@@ -1,7 +1,6 @@
 'user strict'
 
 const mongoose = require('mongoose');
-const moment = require('moment');
 
 const deliverableSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user'},
@@ -38,8 +37,13 @@ deliverableSchema.virtual('studentFullName').get(function(){
 });
 
 deliverableSchema.virtual('dueDateFormatted').get(function() {
-    return moment(this.dueDate).format('MMM. d, YYYY');
-})
+        let newDueDate = new Date(this.dueDate);
+        let newDay = newDueDate.getDate();
+        let newMonth = newDueDate.getMonth() + 1;
+        let newYear = newDueDate.getFullYear();
+        let formattedDueDate =`${newYear} - ${newMonth<10?`0${newMonth}`:`${newMonth}`} - ${newDay}`;
+        return formattedDueDate;
+});
 
 //below, I can use this.course to get the WHOLE object or just one of the
 // keys, this.course.courseName..  same with user
