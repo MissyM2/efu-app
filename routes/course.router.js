@@ -183,6 +183,7 @@ courseRouter.delete('/', (req, res) => {
      User.findById(req.user.id)
          .then(user => {
              if (user) {
+                 const userID = user._id;
                  Term.findOne({termDesc: req.body.termDesc})
                      .then(term => {
                          if (term) {
@@ -190,45 +191,61 @@ courseRouter.delete('/', (req, res) => {
                                  .then(course => {
                                      if (course) {
                                          Course.findByIdAndRemove({_id: course._id})
-                                             .then(() => {
-                                                const message = `course has been deleted`;
-                                                console.error(message);
-                                                return res.status(200).send(message);
-                                            })
-                                             .catch(err => {
-                                                 console.error(err);
-                                                 return res.status(500).json({error: `${err}`});
-                                             });
-                                     } else {
-                                         const message = 'course not found';
-                                         console.error(message);
-                                         return res.status(400).send(message);
-                                     }
-                                 })
-                                 .catch(err => {
-                                     console.error(err);
-                                     return res.status(500).json({error: `${err}`});
-                                 }); 
-                         } else {
-                             const message = `term not found`;
-                             console.error(message);
-                             return res.status(400).send(message);
-                         }
-                     })
-                     .catch (err => {
-                         console.error(err);
-                         return res.status(500).json({error: `${err}`});
-                     }); 
-             } else {
-                 const message = `user not found`;
-                 console.error(message);
-                 return res.status(400).send(message);
-             }
-         })
-         .catch(err => {
-             console.log(err);
-             return res.status(500).json({ error: `${err}`});
-         });
- });
+                                            .then(() => {
+                                                    console.log(userID);
+                                                    console.log('week has been removed properly!');
+                                                    User.findById(userID)
+                                                    .then (user => {
+                                                        Course.find({user: user._id})
+                                                            .then(courses => {
+                                                                res.status(200).json(
+                                                                    courses.map(course => course.serialize())
+                                                                )
+                                                            })
+                                                            .catch(err => {
+                                                                console.log(err);
+                                                                return res.status(500).json({error: `${err}`});
+                                                            });
+                                                    })
+                                                    .catch(err => {
+                                                        console.log(err);
+                                                        return res.status(500).json({error: `${err}`});
+                                                    });
+                                           })
+                                            .catch(err => {
+                                                console.error(err);
+                                                return res.status(500).json({error: `${err}`});
+                                            });
+                                    } else {
+                                        const message = 'course not found';
+                                        console.error(message);
+                                        return res.status(400).send(message);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    return res.status(500).json({error: `${err}`});
+                                }); 
+                        } else {
+                            const message = `term not found`;
+                            console.error(message);
+                            return res.status(400).send(message);
+                        }
+                    })
+                    .catch (err => {
+                        console.error(err);
+                        return res.status(500).json({error: `${err}`});
+                    }); 
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({ error: `${err}`});
+        });
+});
 
 module.exports = {courseRouter};
