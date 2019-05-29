@@ -1,5 +1,5 @@
 {
-  "name": "efu-server",
+  "name": "efu-app",
   "version": "1.0.0",
   "description": "",
   "main": "config.js",
@@ -33,12 +33,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MissyM2/efu-server.git"
+    "url": "git+https://github.com/MissyM2/efu-app.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MissyM2/efu-server/issues"
+    "url": "https://github.com/MissyM2/efu-app/issues"
   },
-  "homepage": "https://github.com/MissyM2/efu-server#readme"
+  "homepage": "https://github.com/MissyM2/efu-app#readme"
 }
