@@ -1,0 +1,8 @@
+{"_id":{"$oid":"5cc781c38a3f4d08acea19c3"},"weekNum":1,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0,"leastDifficult":"Math 101","likedLeast":"Math 101","likedMost":"Math 101","mostDifficult":"Math 101"}
+{"_id":{"$oid":"5cc781d38a3f4d08acea19c4"},"weekNum":2,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0,"leastDifficult":"English 101","likedLeast":"Hoeing","likedMost":"Hoeing","mostDifficult":"English 101"}
+{"_id":{"$oid":"5cce08655f3b36498e31b388"},"weekNum":1,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
+{"_id":{"$oid":"5cce08795f3b36498e31b38a"},"weekNum":3,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
+{"_id":{"$oid":"5cdedd02aacd0acbad5faeca"},"weekNum":3,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
+{"_id":{"$oid":"5ce75c7db5038607f089d29e"},"weekNum":4,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
+{"_id":{"$oid":"5ce75d01b5038607f089d29f"},"weekNum":5,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
+{"_id":{"$oid":"5ce75d54b5038607f089d2a0"},"weekNum":6,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}

@@ -1,0 +1,3 @@
+{"_id":{"$oid":"5ce9b303b8f5334c95f3d715"},"gradeNum":5,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"week":{"$oid":"5cc781d38a3f4d08acea19c4"},"course":{"$oid":"5cc78442c5535108ed3b094c"},"__v":0}
+{"_id":{"$oid":"5ce9c108b8f5334c95f3d716"},"gradeNum":10,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"week":{"$oid":"5cc781d38a3f4d08acea19c4"},"course":{"$oid":"5cc7844ac5535108ed3b094d"},"__v":0}
+{"_id":{"$oid":"5ce9c8dfb8f5334c95f3d717"},"gradeNum":49,"user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"week":{"$oid":"5cc781d38a3f4d08acea19c4"},"course":{"$oid":"5cc78452c5535108ed3b094e"},"__v":0}
