@@ -1,9 +1,0 @@
-{"_id":{"$oid":"5cc78442c5535108ed3b094c"},"courseName":"English 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
-{"_id":{"$oid":"5cc7844ac5535108ed3b094d"},"courseName":"Math 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
-{"_id":{"$oid":"5cc78452c5535108ed3b094e"},"courseName":"Ditch Digging 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
-{"_id":{"$oid":"5cc78468c5535108ed3b0951"},"courseName":"Computers 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
-{"_id":{"$oid":"5cc78472c5535108ed3b0952"},"courseName":"Digital Art 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
-{"_id":{"$oid":"5ccb48eddd5e2b399f06feb6"},"courseName":"Archaeology 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
-{"_id":{"$oid":"5ccb49e8b37c5339c6d8446e"},"courseName":"Dog Sitting 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
-{"_id":{"$oid":"5ccb4a1a90383639d24ad655"},"courseName":"Doodling 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc7728ee2575807eae72b65"},"__v":0}
-{"_id":{"$oid":"5ce6fd91b5038607f089d299"},"courseName":"Bulb Planting 101","user":{"$oid":"5cc05cab4f68a203112870e4"},"term":{"$oid":"5cc77287e2575807eae72b64"},"__v":0}
