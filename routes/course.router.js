@@ -74,7 +74,6 @@ courseRouter.post('/', (req, res) => {
 
 // get all courses for selected user
 courseRouter.get('/', (req, res) => {
-    console.log(req.user.id);
     User.findById(req.user.id)
         .then (user => {
             Course.find({user: user._id})
@@ -84,12 +83,10 @@ courseRouter.get('/', (req, res) => {
                     )
                 })
                 .catch(err => {
-                    console.log(err);
                     return res.status(500).json({error: `${err}`});
                 });
         })
         .catch(err => {
-            console.log(err);
             return res.status(500).json({error: `${err}`});
         });
 });
@@ -110,18 +107,15 @@ courseRouter.put('/', (req, res) => {
     const updatedCourse = {
         courseName: req.body.newCourseName
     }
-    console.log('updatedCourse before searching', updatedCourse);
   
     User.findById(req.user.id)
     .then(user => {
         if (user) {
             updatedCourse.user = user._id;
-            console.log('updatedCourse after user is found', updatedCourse);
             Term.findOne({termDesc: req.body.termDesc}) 
                 .then(term => {
                     if (term) {
                         updatedCourse.term=term._id;
-                        console.log('updatedCourse after term is found', updatedCourse);
                         Course.findOne({user:user._id, term:term._id, courseName: req.body.oldCourseName})
                             .then(course => {
                                 if (course) {
@@ -192,8 +186,6 @@ courseRouter.delete('/', (req, res) => {
                                      if (course) {
                                          Course.findByIdAndRemove({_id: course._id})
                                             .then(() => {
-                                                    console.log(userID);
-                                                    console.log('week has been removed properly!');
                                                     User.findById(userID)
                                                     .then (user => {
                                                         Course.find({user: user._id})
@@ -203,17 +195,14 @@ courseRouter.delete('/', (req, res) => {
                                                                 )
                                                             })
                                                             .catch(err => {
-                                                                console.log(err);
                                                                 return res.status(500).json({error: `${err}`});
                                                             });
                                                     })
                                                     .catch(err => {
-                                                        console.log(err);
                                                         return res.status(500).json({error: `${err}`});
                                                     });
                                            })
                                             .catch(err => {
-                                                console.error(err);
                                                 return res.status(500).json({error: `${err}`});
                                             });
                                     } else {
@@ -243,7 +232,6 @@ courseRouter.delete('/', (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
             return res.status(500).json({ error: `${err}`});
         });
 });

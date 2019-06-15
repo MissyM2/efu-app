@@ -16,11 +16,8 @@ function createAuthToken(user) {
     });
 };
 
-console.log(localAuth);
 // authenticate user: the user provides a username and password to login
 authRouter.post('/login', localAuth, (req, res) => {
-    console.log('after authRouter');
-    console.log(req.body);
     const user = req.user.serialize();
     const authToken = createAuthToken(user);
     return res.json({authToken, user});

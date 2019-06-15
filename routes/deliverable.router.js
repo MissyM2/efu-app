@@ -6,7 +6,6 @@ const passport = require('passport');
 const {User} = require('../models/user.model');
 const {Term} = require('../models/term.model');
 const {Course} = require('../models/course.model');
-const {Week} = require('../models/week.model');
 const {Deliverable} = require('../models/deliverable.model');
 
 
@@ -17,7 +16,7 @@ deliverableRouter.use('/', passport.authenticate('jwt', {session: false}));
 
 // add a new deliverable for a given course
 deliverableRouter.post('/', (req, res) => {
-    const reqFields = ['termDesc', 'weekNum', 'courseName', 'dueDate', 'deliverableName', 'pressure', 'prephrs'];
+    const reqFields = ['termDesc','courseName', 'dueDate', 'deliverableName', 'impact', 'prephrs'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
@@ -31,7 +30,7 @@ deliverableRouter.post('/', (req, res) => {
     const newDeliverable = {
             dueDate: req.body.dueDate,
             deliverableName: req.body.deliverableName,
-            pressure: req.body.pressure,
+            impact: req.body.impact,
             desc: req.body.desc,
             prephrs: req.body.prephrs
     };
@@ -47,47 +46,31 @@ deliverableRouter.post('/', (req, res) => {
                         if (term) {
                             newDeliverable.term = term._id;
                             console.log('newDeliverable with termid is', newDeliverable);
-                            Week.findOne({user:user._id, term: term._id, weekNum:req.body.weekNum })
-                                .then(week => {
-                                    if (week) {
-                                        newDeliverable.week = week._id;
-                                        console.log('newDeliverable with weekid is', newDeliverable);
-                                        Course.findOne({user:user._id, term: term._id, courseName: req.body.courseName})
-                                            .then(course => {
-                                                if (course) {
-                                                    newDeliverable.course = course._id;
-                                                    console.log('newDeliverable with courseid ', newDeliverable);
-                                                    return Deliverable.create(newDeliverable)
-                                                        .then(deliverable => {
-                                                            return res.status(201).json({
-                                                                id: deliverable._id,
-                                                                studentFullName: `${user.firstname} ${user.lastname}`,
-                                                                termDesc: term.termDesc,
-                                                                weekNum: week.weekNum,
-                                                                courseName: course.courseName,
-                                                                dueDate: deliverable.dueDate,
-                                                                deliverableName: deliverable.deliverableName,
-                                                                pressure: deliverable.pressure,
-                                                                desc: deliverable.desc,
-                                                                prephrs: deliverable.prephrs
-                                                            });
-                                                        })
-                                                        .catch(err => {
-                                                            console.error(err);
-                                                            return res.status(500).json({error: `${err}`});
-                                                        });
-                                                } else {
-                                                    const message = `course not found`;
-                                                    console.error(message);
-                                                    return res.status(400).send(message);
-                                                };
+                            Course.findOne({user:user._id, term: term._id, courseName: req.body.courseName})
+                                .then(course => {
+                                    if (course) {
+                                        newDeliverable.course = course._id;
+                                        console.log('newDeliverable with courseid ', newDeliverable);
+                                        return Deliverable.create(newDeliverable)
+                                            .then(deliverable => {
+                                                return res.status(201).json({
+                                                    id: deliverable._id,
+                                                    studentFullName: `${user.firstname} ${user.lastname}`,
+                                                    termDesc: term.termDesc,
+                                                    courseName: course.courseName,
+                                                    dueDate: deliverable.dueDate,
+                                                    deliverableName: deliverable.deliverableName,
+                                                    impact: deliverable.impact,
+                                                    desc: deliverable.desc,
+                                                    prephrs: deliverable.prephrs
+                                                });
                                             })
                                             .catch(err => {
                                                 console.error(err);
                                                 return res.status(500).json({error: `${err}`});
-                                            })
+                                            });
                                     } else {
-                                        const message = `week not found`;
+                                        const message = `course not found`;
                                         console.error(message);
                                         return res.status(400).send(message);
                                     };
@@ -95,7 +78,8 @@ deliverableRouter.post('/', (req, res) => {
                                 .catch(err => {
                                     console.error(err);
                                     return res.status(500).json({error: `${err}`});
-                                })     
+                                })
+                                    
                         } else {
                             const message = `term not found`;
                             console.error(message);
@@ -121,7 +105,7 @@ deliverableRouter.post('/', (req, res) => {
 
 
 // get all deliverables for selected user
-// deliverables for course and week are handled on the front-end in the component
+// deliverables for course are handled on the front-end in the component
 deliverableRouter.get('/', (req, res) => {
     console.log(req.user.id);
     User.findById(req.user.id)
@@ -148,13 +132,8 @@ deliverableRouter.get('/', (req, res) => {
 deliverableRouter.post('/search', (req, res) => {
     var userid = '';
     var termid = '';
-    var weekid = '';
     var courseid = '';
     console.log('req body inside of deliverable router is ', req.body);
-    //user: '5cc05cab4f68a203112870e4',
-  //termDesc: 'Spring, 2019',
-  //weekNum: '2',
-  //courseName: 'English 101' }
 
     
     User.findById(req.user.id)
@@ -166,59 +145,44 @@ deliverableRouter.post('/search', (req, res) => {
                     .then(term => {
                         if (term) {
                             termid = term._id;
-                            // now that the user and term are found, find the week
-                            Week.findOne({user:user._id, weekNum: req.body.weekNum})
-                                .then(week => {
-                                    if (week) {
-                                        //console.log(week);
-                                        weekid = week._id;
-                                        // now that user, term and week are found, find course
-                                        Course.findOne({user:user._id, courseName: req.body.courseName})
-                                        .then(course => {
-                                            if (course) {
-                                                courseid = course._id;
-                                                // now that all req fields (user, term, week and course are found, create grade)
-                                                return Deliverable.find({user:userid, term:termid, week:weekid, course:courseid})
-                                                    .then(deliverables => {
-                                                        console.log('deliverables after deliverables are found', deliverables);
-                                                        if(deliverables) {
-                                                            console.log('after the search, found some deliverables ', deliverables);
-                                                            const message = 'there are deliverables with this user, term, week and course. Returning deliverables';
-                                                            console.log(message);
-                                                            return res.status(200).json(deliverables);
-                                                        } else {
-                                                            console.log('after the search, there are no deliverables with this user, term, week and course ', grade);
-                                                            const message = 'no deliverables found';
-                                                            console.log(message);
-                                                            res.status(200).json({exists: false});
-                                                            return false;
-                                                        }
-                                                    })
-                                                    .catch(err => {
-                                                        console.error(err);
-                                                        return res.status(500).json({error: `${err}`});
-                                                    });
+                            // now that user and term are found, find course
+                            Course.findOne({user:user._id, courseName: req.body.courseName})
+                            .then(course => {
+                                if (course) {
+                                    courseid = course._id;
+                                    // now that all req fields (user, term, and course are found, create grade)
+                                    return Deliverable.find({user:userid, term:termid, course:courseid})
+                                        .then(deliverables => {
+                                            console.log('deliverables after deliverables are found', deliverables);
+                                            if(deliverables) {
+                                                console.log('after the search, found some deliverables ', deliverables);
+                                                const message = 'there are deliverables with this user, term and course. Returning deliverables';
+                                                console.log(message);
+                                                return res.status(200).json(deliverables);
                                             } else {
-                                                const message = `course not found`;
-                                                console.error(message);
-                                                return res.status(400).send(message);
+                                                console.log('after the search, there are no deliverables with this user, term and course ', grade);
+                                                const message = 'no deliverables found';
+                                                console.log(message);
+                                                res.status(200).json({exists: false});
+                                                return false;
                                             }
                                         })
                                         .catch(err => {
                                             console.error(err);
-                                            return res.status(500).json({ error: `${err}`});
+                                            return res.status(500).json({error: `${err}`});
                                         });
+                                } else {
+                                    const message = `course not found`;
+                                    console.error(message);
+                                    return res.status(400).send(message);
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                return res.status(500).json({ error: `${err}`});
+                            });
 
-                                    } else {
-                                        const message = `week not found`;
-                                        console.error(message);
-                                        return res.status(400).send(message);
-                                    }
-                                })
-                                .catch (err => {
-                                    console.error(err);
-                                    return res.status(500).json({ error: `${err}`});
-                                });
+                                    
                         } else {
                             const message = `term not found`;
                             console.error(message);
@@ -242,9 +206,9 @@ deliverableRouter.post('/search', (req, res) => {
 });
 
 
-// update a Deliverable for a given course, for a given week, for a given term for a given user
+// update a Deliverable for a given course, for a given term for a given user
 deliverableRouter.put('/', (req, res) => {
-    const reqFields = ['termDesc','courseName','weekNum', 'olddueDate'];
+    const reqFields = ['termDesc', 'courseName', 'olddueDate'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
         return res.status(422).json({
@@ -257,7 +221,7 @@ deliverableRouter.put('/', (req, res) => {
     const updatedDeliverable = {
         dueDate: req.body.dueDate,
         deliverableName: req.body.deliverableName,
-        pressure: req.body.pressure,
+        impact: req.body.impact,
         desc: req.body.desc,
         prephrs: req.body.prephrs
     };
@@ -271,57 +235,42 @@ deliverableRouter.put('/', (req, res) => {
                     .then(term => {
                         if (term) {
                             updatedDeliverable.term = term._id;
-                            // now that the user and term are found, find the week
-                            Week.findOne({user:user._id, weekNum: req.body.weekNum})
-                                .then(week => {
-                                    if (week) {
-                                        updatedDeliverable.week = week._id;
-                                        // now that user, term and week are found, find course
-                                        Course.findOne({user:user._id, term: term._id, courseName: req.body.courseName})
-                                        .then(course => {
-                                            if (course) {
-                                                updatedDeliverable.course= course._id;
-                                                // now that all req fields (user, term, week and course are found, find grade)
-                                                Deliverable.findOne({user:user._id, term: term._id, week: week._id, course:course._id, dueDate: req.body.olddueDate})
-                                                    .then(deliverable => {
-                                                        if (deliverable) {
-                                                            console.log('deliverable after the find one is ', deliverable);
-                                                            Deliverable.findOneAndUpdate({_id: deliverable._id}, updatedDeliverable, {new: true})
-                                                                .then(newdeliverable => {
-                                                                    res.status(200).json(newdeliverable)
-                                                                })
-                                                                .catch(err => {
-                                                                    console.error(err);
-                                                                    return res.status(500).json({error: `${err}`});
-                                                                });
-                                                        } else {
-                                                            const message = 'deliverable not found';
-                                                            console.error(message);
-                                                            return res.status(400).send(message);
-                                                        }
+                            // now that user and term are found, find course
+                            Course.findOne({user:user._id, term: term._id, courseName: req.body.courseName})
+                            .then(course => {
+                                if (course) {
+                                    updatedDeliverable.course= course._id;
+                                    // now that all req fields (user, term and course are found, find grade)
+                                    Deliverable.findOne({user:user._id, term: term._id, course:course._id, dueDate: req.body.olddueDate})
+                                        .then(deliverable => {
+                                            if (deliverable) {
+                                                console.log('deliverable after the find one is ', deliverable);
+                                                Deliverable.findOneAndUpdate({_id: deliverable._id}, updatedDeliverable, {new: true})
+                                                    .then(newdeliverable => {
+                                                        res.status(200).json(newdeliverable)
                                                     })
-                                               
+                                                    .catch(err => {
+                                                        console.error(err);
+                                                        return res.status(500).json({error: `${err}`});
+                                                    });
                                             } else {
-                                                const message = `course not found`;
+                                                const message = 'deliverable not found';
                                                 console.error(message);
                                                 return res.status(400).send(message);
                                             }
                                         })
-                                        .catch(err => {
-                                            console.error(err);
-                                            return res.status(500).json({ error: `${err}`});
-                                        });
-
-                                    } else {
-                                        const message = `week not found`;
-                                        console.error(message);
-                                        return res.status(400).send(message);
-                                    }
-                                })
-                                .catch (err => {
-                                    console.error(err);
-                                    return res.status(500).json({ error: `${err}`});
-                                });
+                                    
+                                } else {
+                                    const message = `course not found`;
+                                    console.error(message);
+                                    return res.status(400).send(message);
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                return res.status(500).json({ error: `${err}`});
+                            });
+                                    
                         } else {
                             const message = `term not found`;
                             console.error(message);

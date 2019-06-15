@@ -5,11 +5,10 @@ const mongoose = require('mongoose');
 const deliverableSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user'},
     term: { type: mongoose.Schema.Types.ObjectId, ref: 'term'},
-    week: { type: mongoose.Schema.Types.ObjectId, ref: 'week'},
     course:{ type: mongoose.Schema.Types.ObjectId, ref: 'course'},
     dueDate: { type: Date, required: true},
     deliverableName: { type: String, required: true },
-    pressure: { type: String, required: true },
+    impact: { type: String, required: true },
     desc: {type:String},
     prephrs: {type: Number, required: true}
 });
@@ -18,7 +17,6 @@ const deliverableSchema = new mongoose.Schema({
 deliverableSchema.pre('find', function(next) {
     this.populate('user');
     this.populate('term');
-    this.populate('week');
     this.populate('course');
     next();
 });
@@ -26,7 +24,6 @@ deliverableSchema.pre('find', function(next) {
 deliverableSchema.pre('findOne', function(next) {
     this.populate('user');
     this.populate('term'),
-    this.populate('week');
     this.populate('course');
     next();
 });
@@ -38,12 +35,14 @@ deliverableSchema.virtual('studentFullName').get(function(){
 
 deliverableSchema.virtual('dueDateFormatted').get(function() {
         let newDueDate = new Date(this.dueDate);
-        let newDay = newDueDate.getDate();
-        let newMonth = newDueDate.getMonth() + 1;
-        let newYear = newDueDate.getFullYear();
+        let newDay = newDueDate.getUTCDate();
+        let newMonth = newDueDate.getUTCMonth() + 1;
+        let newYear = newDueDate.getUTCFullYear();
         let formattedDueDate =`${newYear} - ${newMonth<10?`0${newMonth}`:`${newMonth}`} - ${newDay}`;
         return formattedDueDate;
 });
+
+
 
 //below, I can use this.course to get the WHOLE object or just one of the
 // keys, this.course.courseName..  same with user
@@ -52,11 +51,11 @@ deliverableSchema.methods.serialize = function() {
         id: this._id,
         user: this.studentFullName,
         termDesc: this.term.termDesc,
-        weekNum: this.week.weekNum,
         courseName: this.course.courseName,
-        dueDate: this.dueDateFormatted,
+        dueDateFormatted: this.dueDateFormatted,
+        dueDate: this.dueDate,
         deliverableName: this.deliverableName,
-        pressure: this.pressure,
+        impact: this.impact,
         desc: this.desc,
         prephrs: this.prephrs
     };

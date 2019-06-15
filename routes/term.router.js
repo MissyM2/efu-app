@@ -64,11 +64,9 @@ termRouter.put('/', (req, res) => {
     const updatedTerm = {
         termDesc: req.body.newTermDesc
     }
-    console.log('updatedTerm before searching', updatedTerm);
     Term.findOne({termDesc: req.body.oldTermDesc})
         .then(term => {
             if (term) {
-                console.log('this is the term to be updated', term);
                 Term.findOneAndUpdate({_id: term._id}, updatedTerm, {new: true})
                     .then(termupdate => {
                         res.status(200).json(termupdate);

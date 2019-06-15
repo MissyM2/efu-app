@@ -11,7 +11,6 @@ suggestionRouter.use('/', passport.authenticate('jwt', { session: false }));
 
 // add a new suggestion
 suggestionRouter.post('/', (req, res) => {
-    console.log('suggestion post made it');
     const reqFields = ['category', 'desc'];
     const missingField = reqFields.find(field => !(field in req.body));
     if (missingField) {
@@ -112,11 +111,9 @@ suggestionRouter.put('/:id', (req, res) => {
 suggestionRouter.delete('/:id', (req, res) => {
     return Suggestion.findByIdAndRemove(req.params.id)
         .then(() => {
-            console.log('deleting entry...');
             res.status(200).json({success: 'suggestion has been removed'});
         })
         .catch(error => {
-            console.error(err);
             return res.status(500).json({ error: 'something went wrong!' });
         });
 });
