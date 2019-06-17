@@ -13,6 +13,9 @@ const courseSchema = new mongoose.Schema({
         type: String, 
         required: true,
         unique: true
+    },
+    courseDesc: {
+        type: String
     }
 });
 
@@ -37,7 +40,8 @@ courseSchema.methods.serialize = function() {
         id: this._id,
         studentFullName: this.studentFullName,
         termDesc: this.term.termDesc,
-        courseName: this.courseName
+        courseName: this.courseName,
+        courseDesc: this.courseDesc
     };
 };
 

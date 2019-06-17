@@ -16,11 +16,8 @@ gradeRouter.use(passport.authenticate('jwt', {session: false}));
 
 // add a new Grade for a given course
 gradeRouter.post('/', (req, res) => {
-    console.log('inside the grade router', req.body);
     const reqFields = ['termDesc','courseName','weekNum', 'gradeNum'];
-    console.log(reqFields);
     const missingField = reqFields.find(field => !(field in req.body));
-    console.log(missingField);
     if (missingField) {
         return res.status(422).json({
             code: 422,
@@ -29,7 +26,6 @@ gradeRouter.post('/', (req, res) => {
             location: missingField
         });
     }
-    console.log('did i make it to after the missingfields?');
 
     const newGrade = {
             gradeNum: req.body.gradeNum
@@ -44,20 +40,17 @@ gradeRouter.post('/', (req, res) => {
                     .then(term => {
                         if (term) {
                             newGrade.term = term._id;
-                            console.log('newGrade with userid is', newGrade);
 
                             // now that the user and term are found, find the week
                             Week.findOne({user:user._id, weekNum: req.body.weekNum})
                                 .then(week => {
                                     if (week) {
                                         newGrade.week = week._id;
-                                        console.log('newGrade with userid, weekid is', newGrade);
                                         // now that user, term and week are found, find course
                                         Course.findOne({user:user._id, courseName: req.body.courseName})
                                         .then(course => {
                                             if (course) {
                                                 newGrade.course = course._id;
-                                                console.log('newGrade with userid, weekid, courseid is', newGrade);
                                                 // now that all req fields (user, term, week and course are found, create grade)
                                                 return Grade.create(newGrade)
                                                     .then(grade => {
@@ -121,14 +114,10 @@ gradeRouter.post('/', (req, res) => {
 // get all Grades for selected user
 // grades for course and week are handled on the front-end in the component
 gradeRouter.get('/', (req, res) => {
-    console.log('made it to gradeRouter');
     User.findById(req.user.id)
         .then (user => {
-            console.log('found the user', user);
             Grade.find({user: user._id})
                 .then(grades => {
-                    console.log('found the grades, where is the term', grades);
-                    console.log('made it to Grade.find');
                     res.status(200).json(
                         grades.map(grade => grade.serialize())
                     )
@@ -151,7 +140,6 @@ gradeRouter.post('/search', (req, res) => {
     var termid = '';
     var weekid = '';
     var courseid = '';
-    console.log(req.body);
     
 
     User.findById(req.user.id)
@@ -167,26 +155,21 @@ gradeRouter.post('/search', (req, res) => {
                             Week.findOne({user:user._id, weekNum: req.body.weekNum})
                                 .then(week => {
                                     if (week) {
-                                        //console.log(week);
                                         weekid = week._id;
                                         // now that user, term and week are found, find course
                                         Course.findOne({user:user._id, courseName: req.body.courseName})
                                         .then(course => {
                                             if (course) {
                                                 courseid = course._id;
-                                                console.log('courseid is ', courseid);
                                                 // now that all req fields (user, term, week and course are found, create grade)
                                                 return Grade.findOne({user:user._id, term:termid, week:weekid, course:courseid})
                                                     .then(grade => {
                                                         if(grade) {
-                                                            console.log('after the search, grade it found.  here is the grade ', grade);
                                                             const message = 'there is a grade with this user, term, week and course already';
                                                             console.log(message);
                                                             res.status(200).json({exists: true})
                                                             return true;
                                                         } else {
-
-                                                            console.log('after the search, grade is not found. here is the grade ', grade);
                                                             const message = 'grade not found.  you may add the grade';
                                                             console.log(message);
                                                             res.status(200).json({exists: false});
@@ -271,7 +254,6 @@ gradeRouter.put('/', (req, res) => {
                     .then(term => {
                         if (term) {
                             updatedGrade.term = term._id;
-                            console.log('updatedGrade with userid is', updatedGrade);
 
                             // now that the user and term are found, find the week
                             Week.findOne({user:user._id, weekNum: req.body.weekNum})
@@ -341,6 +323,75 @@ gradeRouter.put('/', (req, res) => {
         })
         .catch(err => {
             console.error(err);
+            return res.status(500).json({ error: `${err}`});
+        });
+});
+
+//delete route for grade with proper courseName, termDesc and user
+gradeRouter.delete('/', (req, res) => {
+    console.log('made it to gradeRouter.delete');
+    const reqFields = ['termDesc', 'courseName'];
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({
+            code: 422, 
+            reason: 'ValidationError', 
+            message: 'Missing field', 
+            location: missingField
+        });
+    }
+    
+     User.findById(req.user.id)
+         .then(user => {
+             if (user) {
+                 const userID = user._id;
+                 Term.findOne({termDesc: req.body.termDesc})
+                     .then(term => {
+                         if (term) {
+                             const termID = term._id
+                             Course.findOne({courseName: req.body.courseName})
+                                 .then(course => {
+                                    const courseID= course._id
+                                     if (course) {
+                                         Grade.remove({
+                                            user: userID,
+                                            term: termID,
+                                            course: courseID
+                                            })
+                                            .then(() => {
+                                                console.log('all grades for the following course/term/user have been removed properly');
+                                                   
+                                           })
+                                            .catch(err => {
+                                                return res.status(500).json({error: `${err}`});
+                                            });
+                                    } else {
+                                        const message = 'course not found';
+                                        console.error(message);
+                                        return res.status(400).send(message);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    return res.status(500).json({error: `${err}`});
+                                }); 
+                        } else {
+                            const message = `term not found`;
+                            console.error(message);
+                            return res.status(400).send(message);
+                        }
+                    })
+                    .catch (err => {
+                        console.error(err);
+                        return res.status(500).json({error: `${err}`});
+                    }); 
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
             return res.status(500).json({ error: `${err}`});
         });
 });

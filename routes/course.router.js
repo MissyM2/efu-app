@@ -24,7 +24,8 @@ courseRouter.post('/', (req, res) => {
     }
 
     const newCourse = {
-        courseName: req.body.courseName
+        courseName: req.body.courseName,
+        courseDesc: req.body.courseDesc
     }
 
     User.findById(req.user.id)
@@ -41,7 +42,8 @@ courseRouter.post('/', (req, res) => {
                                     id: course._id,
                                     studentFullName: `${user.firstName} ${user.lastName}`,
                                     termDesc: term.termDesc,
-                                    courseName: course.courseName                      
+                                    courseName: course.courseName,
+                                    courseDesc: course.courseDesc                 
                                 });
                             })
                             .catch(err => {
@@ -78,6 +80,7 @@ courseRouter.get('/', (req, res) => {
         .then (user => {
             Course.find({user: user._id})
                 .then(courses => {
+                    console.log('courseRouter.get coruses', courses);
                     res.status(200).json(
                         courses.map(course => course.serialize())
                     )
@@ -105,7 +108,8 @@ courseRouter.put('/', (req, res) => {
     }
 
     const updatedCourse = {
-        courseName: req.body.newCourseName
+        courseName: req.body.newCourseName,
+        courseDesc: req.body.newCourseDesc
     }
   
     User.findById(req.user.id)

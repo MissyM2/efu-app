@@ -39,7 +39,6 @@ weekRouter.post('/', (req, res) => {
                     .then(term => {
                         if (term) {
                             newWeek.term = term._id;
-                            console.log('newWeek with term is ', newWeek);
                             return Week.create(newWeek)
                                 .then(week => {
                                     return res.status(201).json({
@@ -82,7 +81,6 @@ weekRouter.post('/', (req, res) => {
 
 // get all weeks
 weekRouter.get('/', (req, res) => {
-    console.log(req.user.id);
     User.findById(req.user.id)
         .then (user => {
             Week.find({user: user._id})
@@ -111,7 +109,6 @@ weekRouter.put('/', (req, res) => {
    const reqFields = ['termDesc', 'weekNum'];
 
     const updatedWeek = {};
-    console.log('before fields are added', updatedWeek);
     const updateableFields = ['likedLeast', 'likedMost', 'mostDifficult', 'leastDifficult'];
     updateableFields.forEach(field => {
         if (field in req.body) {
@@ -119,8 +116,6 @@ weekRouter.put('/', (req, res) => {
         }
     });
 
-    console.log('updateableFields are ', updateableFields);
-    console.log('updatedWeek is ', updatedWeek);
 
     User.findById(req.user.id)
         .then(user => {
@@ -136,7 +131,6 @@ weekRouter.put('/', (req, res) => {
                                         updatedWeek.week = week._id;
                                         Week.findOneAndUpdate({_id: week._id}, updatedWeek, {new: true})
                                             .then(updatedweek => {
-                                                console.log('we made it to then');
                                                 res.status(200).json(updatedweek);
                                             })
                                             .catch(err => {
@@ -200,8 +194,6 @@ weekRouter.delete('/', (req, res) => {
                                      if (week) {
                                          Week.findByIdAndRemove({_id: week._id})
                                              .then(() => {
-                                                     console.log(userID);
-                                                     console.log('week has been removed properly!');
                                                      User.findById(userID)
                                                      .then (user => {
                                                          Week.find({user: user._id})

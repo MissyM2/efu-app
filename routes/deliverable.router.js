@@ -40,17 +40,14 @@ deliverableRouter.post('/', (req, res) => {
         .then(user => {
             if (user) {
                 newDeliverable.user = user._id;
-                console.log('newDeliverable with userid is', newDeliverable);
                 Term.findOne({termDesc: req.body.termDesc})
                     .then(term => {
                         if (term) {
                             newDeliverable.term = term._id;
-                            console.log('newDeliverable with termid is', newDeliverable);
                             Course.findOne({user:user._id, term: term._id, courseName: req.body.courseName})
                                 .then(course => {
                                     if (course) {
                                         newDeliverable.course = course._id;
-                                        console.log('newDeliverable with courseid ', newDeliverable);
                                         return Deliverable.create(newDeliverable)
                                             .then(deliverable => {
                                                 return res.status(201).json({
@@ -133,7 +130,6 @@ deliverableRouter.post('/search', (req, res) => {
     var userid = '';
     var termid = '';
     var courseid = '';
-    console.log('req body inside of deliverable router is ', req.body);
 
     
     User.findById(req.user.id)
@@ -153,14 +149,11 @@ deliverableRouter.post('/search', (req, res) => {
                                     // now that all req fields (user, term, and course are found, create grade)
                                     return Deliverable.find({user:userid, term:termid, course:courseid})
                                         .then(deliverables => {
-                                            console.log('deliverables after deliverables are found', deliverables);
                                             if(deliverables) {
-                                                console.log('after the search, found some deliverables ', deliverables);
                                                 const message = 'there are deliverables with this user, term and course. Returning deliverables';
                                                 console.log(message);
                                                 return res.status(200).json(deliverables);
                                             } else {
-                                                console.log('after the search, there are no deliverables with this user, term and course ', grade);
                                                 const message = 'no deliverables found';
                                                 console.log(message);
                                                 res.status(200).json({exists: false});
@@ -244,7 +237,6 @@ deliverableRouter.put('/', (req, res) => {
                                     Deliverable.findOne({user:user._id, term: term._id, course:course._id, dueDate: req.body.olddueDate})
                                         .then(deliverable => {
                                             if (deliverable) {
-                                                console.log('deliverable after the find one is ', deliverable);
                                                 Deliverable.findOneAndUpdate({_id: deliverable._id}, updatedDeliverable, {new: true})
                                                     .then(newdeliverable => {
                                                         res.status(200).json(newdeliverable)
