@@ -31,11 +31,11 @@ const { deliverableRouter } = require('./routes/deliverable.router');
 const { suggestionRouter } = require('./routes/suggestion.router');
 
 app.use(express.json());
-app.use(
-    cors({
-        origin: CLIENT_ORIGIN
-    })
-);
+//app.use(
+//    cors({
+//        origin: CLIENT_ORIGIN
+//    })
+//);
 
 // logging
 app.use(morgan('common'));
