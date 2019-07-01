@@ -201,8 +201,9 @@ deliverableRouter.post('/search', (req, res) => {
 
 // update a Deliverable for a given course, for a given term for a given user
 deliverableRouter.put('/', (req, res) => {
-    const reqFields = ['termDesc', 'courseName', 'olddueDate'];
+    const reqFields = ['termDesc', 'courseName', 'dueDate'];
     const missingField = reqFields.find(field => !(field in req.body));
+    console.log('deliverableRouter:reqFields', reqFields);
     if (missingField) {
         return res.status(422).json({
             code: 422,
@@ -234,7 +235,7 @@ deliverableRouter.put('/', (req, res) => {
                                 if (course) {
                                     updatedDeliverable.course= course._id;
                                     // now that all req fields (user, term and course are found, find grade)
-                                    Deliverable.findOne({user:user._id, term: term._id, course:course._id, dueDate: req.body.olddueDate})
+                                    Deliverable.findOne({user:user._id, term: term._id, course:course._id, dueDate: req.body.dueDate})
                                         .then(deliverable => {
                                             if (deliverable) {
                                                 Deliverable.findOneAndUpdate({_id: deliverable._id}, updatedDeliverable, {new: true})
@@ -251,6 +252,10 @@ deliverableRouter.put('/', (req, res) => {
                                                 return res.status(400).send(message);
                                             }
                                         })
+                                        .catch(err => {
+                                            console.error(err);
+                                            return res.status(500).json({error:`${err}`});
+                                        });
                                     
                                 } else {
                                     const message = `course not found`;
@@ -281,6 +286,91 @@ deliverableRouter.put('/', (req, res) => {
         })
         .catch(err => {
             console.error(err);
+            return res.status(500).json({ error: `${err}`});
+        });
+});
+
+//delete route for Course with proper courseName, termDesc and user
+deliverableRouter.delete('/', (req, res) => {
+    const reqFields = ['termDesc','courseName', 'dueDate', 'deliverableName', 'impact', 'prephrs'];
+    const missingField = reqFields.find(field => !(field in req.body));
+    if (missingField) {
+        return res.status(422).json({
+            code: 422, 
+            reason: 'ValidationError', 
+            message: 'Missing field', 
+            location: missingField
+        });
+    }
+ 
+     User.findById(req.user.id)
+         .then(user => {
+             if (user) {
+                 const userID = user._id;
+                 Term.findOne({termDesc: req.body.termDesc})
+                     .then(term => {
+                         const termID=term._id;
+                         if (term) {
+                             Course.findOne({user:userID, term:termID, courseName: req.body.courseName})
+                                 .then(course => {
+                                     const courseID=course._id;
+                                     if (course) {
+                                         console.log('is course true', course);
+                                         Deliverable.findOne({
+                                             user:userID, 
+                                             term:termID, 
+                                             course: courseID, 
+                                             dueDate:req.body.dueDate,
+                                             deliverableName: req.body.deliverableName,
+                                             })
+                                         Course.findByIdAndRemove({_id: course._id})
+                                            .then(() => {
+                                                    User.findById(userID)
+                                                    .then (user => {
+                                                        Course.find({user: user._id})
+                                                            .then(courses => {
+                                                                res.status(200).json(
+                                                                    courses.map(course => course.serialize())
+                                                                )
+                                                            })
+                                                            .catch(err => {
+                                                                return res.status(500).json({error: `${err}`});
+                                                            });
+                                                    })
+                                                    .catch(err => {
+                                                        return res.status(500).json({error: `${err}`});
+                                                    });
+                                           })
+                                            .catch(err => {
+                                                return res.status(500).json({error: `${err}`});
+                                            });
+                                    } else {
+                                        const message = 'course not found';
+                                        console.error(message);
+                                        return res.status(400).send(message);
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    return res.status(500).json({error: `${err}`});
+                                }); 
+                        } else {
+                            const message = `term not found`;
+                            console.error(message);
+                            return res.status(400).send(message);
+                        }
+                    })
+                    .catch (err => {
+                        console.error(err);
+                        return res.status(500).json({error: `${err}`});
+                    }); 
+            } else {
+                const message = `user not found`;
+                console.error(message);
+                return res.status(400).send(message);
+            }
+        })
+        .catch(err => {
             return res.status(500).json({ error: `${err}`});
         });
 });
