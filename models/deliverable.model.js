@@ -38,7 +38,6 @@ deliverableSchema.virtual('dueDateFormatted').get(function() {
         let newDay = newDueDate.getUTCDate();
         let newMonth = newDueDate.getUTCMonth() + 1;
         let newYear = newDueDate.getUTCFullYear();
-        //let formattedDueDate =`${newYear} - ${newMonth<10?`0${newMonth}`:`${newMonth}`} - ${newDay}`;
         let formattedDueDate =`${newYear}-${newMonth<10?`0${newMonth}`:`${newMonth}`}-${newDay<10?`0${newDay}`:`${newDay}`}`;
         return formattedDueDate;
 });
