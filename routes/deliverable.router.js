@@ -315,35 +315,29 @@ deliverableRouter.delete('/', (req, res) => {
                                  .then(course => {
                                      const courseID=course._id;
                                      if (course) {
-                                         console.log('is course true', course);
-                                         Deliverable.findOne({
-                                             user:userID, 
-                                             term:termID, 
-                                             course: courseID, 
-                                             dueDate:req.body.dueDate,
-                                             deliverableName: req.body.deliverableName,
-                                             })
-                                         Course.findByIdAndRemove({_id: course._id})
-                                            .then(() => {
-                                                    User.findById(userID)
-                                                    .then (user => {
-                                                        Course.find({user: user._id})
-                                                            .then(courses => {
-                                                                res.status(200).json(
-                                                                    courses.map(course => course.serialize())
-                                                                )
-                                                            })
-                                                            .catch(err => {
-                                                                return res.status(500).json({error: `${err}`});
-                                                            });
-                                                    })
-                                                    .catch(err => {
-                                                        return res.status(500).json({error: `${err}`});
-                                                    });
-                                           })
-                                            .catch(err => {
-                                                return res.status(500).json({error: `${err}`});
-                                            });
+                                         Deliverable.findOne({user:userID, term:termID, course: courseID, dueDate:req.body.dueDate, deliverableName: req.body.deliverableName})
+                                         .then(deliverable => {
+                                             const deliverableID=deliverable._id;
+                                             if(deliverable) {
+                                                 console.log('is deliverable true', deliverable);
+                                                 Deliverable.findByIdAndRemove({_id:deliverable._id})
+                                                .then(() => {
+                                                    console.log('deliverable has been removed.');
+                                                })
+                                                .catch(err => {
+                                                    return res.status(500).json({error: `${err}`});
+                                                });
+                                            } else {
+                                                const message = 'deliverable not found';
+                                                console.error(message);
+                                                return res.status(400).send(message);
+                                            }
+                                        })
+                                        .catch(err => {
+                                            const message = 'course not found';
+                                            console.error(message);
+                                            return res.status(400).send(message);
+                                        });
                                     } else {
                                         const message = 'course not found';
                                         console.error(message);
