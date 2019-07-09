@@ -108,7 +108,7 @@ deliverableRouter.get('/', (req, res) => {
     User.findById(req.user.id)
         .then (user => {
             Deliverable.find({user: user._id})
-                .sort({dueDate: -1})
+                .sort({dueDate: 1})
                 .then(deliverables => {
                     res.status(200).json(
                         deliverables.map(deliverable => deliverable.serialize())
