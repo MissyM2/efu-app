@@ -114,10 +114,13 @@ gradeRouter.post('/', (req, res) => {
 // get all Grades for selected user
 // grades for course and week are handled on the front-end in the component
 gradeRouter.get('/', (req, res) => {
+    console.log('just inside get');
     User.findById(req.user.id)
         .then (user => {
+            console.log('found user, now get grades');
             Grade.find({user: user._id})
                 .then(grades => {
+                    console.log('show grades', grades);
                     res.status(200).json(
                         grades.map(grade => grade.serialize())
                     )
